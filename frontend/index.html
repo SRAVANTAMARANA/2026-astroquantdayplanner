@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ICT AI Mentor Chart</title>
+  <link rel="stylesheet" href="/frontend/style.css">
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+
+<!-- Removed old dashboard and modal overlay. Only premium dashboard tiles remain below. -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AstroQuant Premium Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #0a1020; color: #f5e9d0; }
+    .hero {
+      background: linear-gradient(120deg, #0a1020 0%, #1a223a 60%, #bfa14a 100%);
+      padding: 3em 2em 2em 2em;
+      border-radius: 0 0 36px 36px;
+      box-shadow: 0 10px 40px #0007;
+      text-align: center;
+      position: relative;
+    }
+    .hero h1 {
+      font-size: 2.8em;
+      font-weight: 900;
+      margin: 0 0 0.2em 0;
+      letter-spacing: 1.5px;
+      color: #ffd700;
+      text-shadow: 0 2px 16px #000a, 0 0px 24px #bfa14a99;
+    }
+    .hero .tagline {
+      font-size: 1.28em;
+      color: #f5e9d0;
+      margin-bottom: 1.2em;
+      text-shadow: 0 1px 8px #0004;
+    }
+    .live-ticker {
+      display: flex; justify-content: center; align-items: center;
+      gap: 2em; font-size: 1.1em; margin-bottom: 1.2em;
+    }
+    .live-ticker .ticker-item {
+      background: rgba(191,161,74,0.10); border-radius: 10px; padding: 0.5em 1.2em;
+      display: flex; align-items: center; gap: 0.5em;
+      font-weight: 700;
+      color: #ffd700;
+      box-shadow: 0 1px 8px #bfa14a33;
+    }
+    .theme-toggle {
+      position: absolute; top: 1.5em; right: 2em;
+      background: rgba(191,161,74,0.18); border: none; border-radius: 50%; width: 48px; height: 48px;
+      color: #ffd700; font-size: 1.4em; cursor: pointer; transition: background 0.2s;
+      box-shadow: 0 2px 8px #bfa14a33;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10;
+    }
+    .theme-toggle:hover { background: rgba(191,161,74,0.32); }
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 36px;
+      max-width: 1400px;
+      margin: -60px auto 0 auto;
+      padding: 40px 20px;
+    }
+    .tile {
+      background: linear-gradient(135deg, #181c24 60%, #232a3d 100%);
+      border-radius: 28px;
+      box-shadow: 0 6px 32px #0005, 0 2px 12px #bfa14a22;
+      padding: 36px 28px 28px 28px;
+      min-height: 340px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      transition: box-shadow 0.22s, transform 0.18s;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+    .tile:hover {
+      box-shadow: 0 16px 56px #bfa14a55, 0 8px 32px #ffd70044;
+      transform: translateY(-4px) scale(1.035);
+      z-index: 2;
+    }
+    .tile .icon {
+      font-size: 3.3em;
+      margin-bottom: 1em;
+      color: #ffd700;
+      background: linear-gradient(135deg, #bfa14a 60%, #ffd700 100%);
+      border-radius: 22px;
+      padding: 0.6em 1.1em;
+      box-shadow: 0 6px 24px #bfa14a55, 0 2px 12px #ffd70055;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+    }
+    .tile:focus-within, .tile:focus, .tile:hover {
+      outline: 2px solid #ffd700;
+      outline-offset: 2px;
+    }
+    .tile .icon:focus, .tile .icon:active {
+      outline: 2px solid #bfa14a;
+      outline-offset: 2px;
+    }
+    .tile {
+      cursor: pointer;
+    }
+    .tile:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 8px #bfa14a55;
+    }
+    .tile:hover .icon {
+      background: linear-gradient(135deg, #ffd700 60%, #bfa14a 100%);
+      color: #232a3d;
+      transform: scale(1.13) rotate(-3deg);
+      box-shadow: 0 12px 36px #ffd700cc, 0 4px 16px #bfa14acc;
+    }
+    .tile h2 {
+      margin: 0 0 0.5em 0;
+      font-size: 1.35em;
+      font-weight: 800;
+      color: #ffd700;
+      text-shadow: 0 1px 8px #bfa14a44;
+    }
+    .tile .desc {
+      color: #f5e9d0;
+      font-size: 1.12em;
+      margin-bottom: 1.3em;
+      text-shadow: 0 1px 6px #0002;
+    }
+    .tile .action-btn {
+      background: linear-gradient(90deg, #bfa14a 60%, #ffd700 100%);
+      color: #232a3d;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-size: 1.08em;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: auto;
+      box-shadow: 0 2px 8px #bfa14a33;
+      transition: background 0.18s, box-shadow 0.18s;
+    }
+    .tile .action-btn:hover { background: linear-gradient(90deg, #ffd700 60%, #bfa14a 100%); color: #bfa14a; }
+    @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <button class="theme-toggle" id="themeToggle" title="Switch theme">
+      <i class="fa-solid fa-moon" id="themeIcon"></i>
+    </button>
+    <h1><i class="fa-solid fa-star-of-david"></i> AstroQuant Premium</h1>
+    <div class="tagline">Next-gen Astro, Gann, ICT & AI Trading Analytics — Live, Modular, and Beautiful</div>
+    <div class="live-ticker" id="liveTicker">
+      <div class="ticker-item"><i class="fa-solid fa-coins"></i> XAUUSD: <span id="xauusdPrice">--</span></div>
+      <div class="ticker-item"><i class="fa-solid fa-bolt"></i> Signals: <span id="signalCount">--</span></div>
+      <div class="ticker-item"><i class="fa-solid fa-calendar-days"></i> Events: <span id="eventCount">--</span></div>
+    </div>
+  </div>
+  <div class="dashboard" id="dashboard">
+    <div class="tile" tabindex="0" aria-label="Live Chart" id="tile-livechart">
+      <div class="icon" aria-label="Live Chart Icon"><i class="fa-solid fa-chart-line"></i></div>
+      <h2>Live Chart</h2>
+      <div class="desc">Real-time, multi-timeframe charting with overlays for signals, astro, and Gann events.</div>
+      <button class="action-btn" tabindex="-1">Show Chart</button>
+    </div>
+    <div class="tile" tabindex="0" aria-label="AI/ML Analytics" id="tile-ml">
+      <div class="icon" aria-label="AI/ML Analytics Icon"><i class="fa-solid fa-brain"></i></div>
+      <h2>AI/ML Analytics</h2>
+      <div class="desc">Machine learning insights, feature importance, and predictive analytics for XAUUSD.</div>
+      <button class="action-btn" tabindex="-1">Show Analytics</button>
+    </div>
+    <div class="tile" tabindex="0" aria-label="Astro Events" id="tile-astro">
+      <div class="icon" aria-label="Astro Events Icon"><i class="fa-solid fa-moon"></i></div>
+      <h2>Astro Events</h2>
+      <div class="desc">Detailed nakshatra, tithi, and planetary event timings with visualizations.</div>
+      <button class="action-btn" tabindex="-1">Show Events</button>
+    </div>
+    <div class="tile" tabindex="0" aria-label="Gann Analytics" id="tile-gann">
+      <div class="icon" aria-label="Gann Analytics Icon"><i class="fa-solid fa-star-of-david"></i></div>
+      <h2>Gann Analytics</h2>
+      <div class="desc">Gann cycles, Square of Nine, and harmonic overlays for advanced market timing.</div>
+      <button class="action-btn" tabindex="-1">Show Gann</button>
+    </div>
+    <div class="tile" tabindex="0" aria-label="Signals Feed" id="tile-signals">
+      <div class="icon" aria-label="Signals Feed Icon"><i class="fa-solid fa-bolt"></i></div>
+      <h2>Signals Feed</h2>
+      <div class="desc">Unified, real-time feed of all trading signals with instant alerts and filtering.</div>
+      <button class="action-btn" tabindex="-1">Show Signals</button>
+    </div>
+    <div class="tile" tabindex="0" aria-label="ICT Mentor" id="tile-ict">
+      <div class="icon" aria-label="ICT Mentor Icon"><i class="fa-solid fa-robot"></i></div>
+      <h2>ICT Mentor</h2>
+      <div class="desc">Inner Circle Trader logic, bias, and trade signals — automated and explainable.</div>
+      <button class="action-btn" tabindex="-1">Show Mentor</button>
+    </div>
+    <!-- Central module content area, now inside dashboard -->
+    <div id="module-content" style="grid-column: 1 / -1; max-width:1200px; margin:0 auto; padding:32px 24px 40px 24px; background:rgba(10,16,32,0.95); border-radius:24px; box-shadow:0 4px 32px #0003; display:none;"></div>
+  </div>
+  <!-- Existing event, chart, and ML dashboard blocks (hidden by default, shown via navigation) -->
+  <div style="display:none">
+    <!-- ...existing code for event-blocks, chart-block, ml-dashboard... -->
+  </div>
+  <script>
+    // Theme selector toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    let premiumTheme = true;
+    function setPremiumTheme() {
+      document.body.style.background = '#0a1020';
+      document.body.style.color = '#f5e9d0';
+      themeIcon.className = 'fa-solid fa-moon';
+      themeToggle.style.color = '#ffd700';
+      // Optionally update other elements for premium
+    }
+    function setLightTheme() {
+      document.body.style.background = '#f8f9fa';
+      document.body.style.color = '#232a3d';
+      themeIcon.className = 'fa-solid fa-sun';
+      themeToggle.style.color = '#bfa14a';
+      // Optionally update other elements for light
+    }
+    themeToggle.onclick = function() {
+      premiumTheme = !premiumTheme;
+      if (premiumTheme) setPremiumTheme();
+      else setLightTheme();
+    };
+    setPremiumTheme();
+    // Live ticker updates (simulate for now)
+    function updateTicker() {
+      fetch('/live_xauusd').then(r=>r.json()).then(d=>{
+        document.getElementById('xauusdPrice').textContent = d.price || '--';
+      }).catch(()=>{});
+      // Simulate signals/events
+      document.getElementById('signalCount').textContent = Math.floor(Math.random()*5+1);
+      document.getElementById('eventCount').textContent = Math.floor(Math.random()*10+5);
+    }
+    setInterval(updateTicker, 3000); updateTicker();
+
+    // Module content logic
+    const dashboard = document.getElementById('dashboard');
+    const moduleContent = document.getElementById('module-content');
+    function showModuleContent(html) {
+      // Hide all tiles except module-content
+      Array.from(dashboard.children).forEach(child => {
+        if (child !== moduleContent) child.style.display = 'none';
+      });
+      moduleContent.innerHTML = `<button id='closeModule' style='float:right;margin:-12px -8px 8px 8px;padding:8px 18px;border-radius:8px;background:#ffd700;color:#232a3d;font-weight:700;border:none;cursor:pointer;box-shadow:0 2px 8px #bfa14a33;'>Close</button>` + html;
+      moduleContent.style.display = 'block';
+      document.getElementById('closeModule').onclick = hideModuleContent;
+    }
+    function hideModuleContent() {
+      // Show all tiles except module-content
+      Array.from(dashboard.children).forEach(child => {
+        if (child !== moduleContent) child.style.display = '';
+      });
+      moduleContent.style.display = 'none';
+      moduleContent.innerHTML = '';
+    }
+    // Example content for each module (replace with real content or AJAX as needed)
+    const moduleHTML = {
+      livechart: `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:18px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <i class='fa-solid fa-chart-line' style='font-size:2em;color:#ffd700;'></i>
+            <h2 style='margin:0;font-size:1.5em;font-weight:800;color:#ffd700;'>Live Chart</h2>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <button title='Timeframes' style='background:none;border:none;color:#ffd700;font-size:1.2em;cursor:pointer;'><i class='fa-solid fa-clock'></i></button>
+            <button title='Overlays' style='background:none;border:none;color:#ffd700;font-size:1.2em;cursor:pointer;'><i class='fa-solid fa-layer-group'></i></button>
+            <button title='Settings' style='background:none;border:none;color:#ffd700;font-size:1.2em;cursor:pointer;'><i class='fa-solid fa-cog'></i></button>
+            <button title='Expand' style='background:none;border:none;color:#ffd700;font-size:1.2em;cursor:pointer;'><i class='fa-solid fa-expand'></i></button>
+          </div>
+        </div>
+        <div id='chart-block' style='width:100%;min-height:400px;height:48vh;max-height:600px;background:#181c24;border-radius:16px;box-shadow:0 4px 24px #0003;margin-bottom:18px;display:flex;align-items:center;justify-content:center;position:relative;'>
+          <span style='color:#ffd700;font-size:1.2em;opacity:0.7;'>TradingView/Lightweight chart integration coming soon.</span>
+        </div>
+        <div style='display:flex;justify-content:flex-end;gap:16px;'>
+          <span style='color:#ffd700;font-size:1em;'><i class='fa-solid fa-coins'></i> XAUUSD: <span id='xauusdPriceModule'>--</span></span>
+        </div>
+      `,
+      ml: `<h2>AI/ML Analytics</h2><p>Machine learning insights, feature importance, and predictive analytics for XAUUSD will be shown here.</p>`,
+      astro: `<h2>Astro Events</h2><p>Detailed nakshatra, tithi, and planetary event timings with visualizations will be shown here.</p>`,
+      gann: `<h2>Gann Analytics</h2><p>Gann cycles, Square of Nine, and harmonic overlays for advanced market timing will be shown here.</p>`,
+      signals: `<h2>Signals Feed</h2><p>Unified, real-time feed of all trading signals with instant alerts and filtering will be shown here.</p>`,
+      ict: `<h2>ICT Mentor</h2><p>Inner Circle Trader logic, bias, and trade signals — automated and explainable — will be shown here.</p>`
+    };
+    document.getElementById('tile-livechart').onclick = () => showModuleContent(moduleHTML.livechart);
+    document.getElementById('tile-ml').onclick = () => showModuleContent(moduleHTML.ml);
+    document.getElementById('tile-astro').onclick = () => showModuleContent(moduleHTML.astro);
+    document.getElementById('tile-gann').onclick = () => showModuleContent(moduleHTML.gann);
+    document.getElementById('tile-signals').onclick = () => showModuleContent(moduleHTML.signals);
+    document.getElementById('tile-ict').onclick = () => showModuleContent(moduleHTML.ict);
+  </script>
+</body>
+</html>

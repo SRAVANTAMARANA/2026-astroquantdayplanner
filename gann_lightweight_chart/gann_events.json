@@ -1,0 +1,17 @@
+{
+  "candles": [
+    { "time": "2025-01-01", "open": 2060, "high": 2080, "low": 2050, "close": 2075 },
+    { "time": "2025-01-02", "open": 2075, "high": 2090, "low": 2060, "close": 2085 },
+    { "time": "2025-01-03", "open": 2085, "high": 2100, "low": 2070, "close": 2095 },
+    { "time": "2025-01-04", "open": 2095, "high": 2110, "low": 2080, "close": 2105 }
+  ],
+  "timeMarkers": [
+    { "time": "2025-01-03", "position": "aboveBar", "color": "#facc15", "shape": "circle", "text": "Cycle Complete (9)" }
+  ],
+  "geometryZones": [
+    { "top": 2100, "bottom": 2090, "label": "Gann Zone" }
+  ],
+  "signalMarkers": [
+    { "time": "2025-01-04", "position": "aboveBar", "color": "#f59e0b", "shape": "arrowDown", "text": "GANN SELL" }
+  ]
+}

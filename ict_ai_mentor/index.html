@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICT AI Mentor Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #1b1b1b; margin: 0; padding: 0; }
+        .container { max-width: 1100px; margin: 40px auto; background: #222; border-radius: 16px; box-shadow: 0 4px 24px #0006; padding: 36px; }
+        h1 { color: #00bcf2; letter-spacing: 1px; }
+        .topnav {
+            width: 100%;
+            background: #262626;
+            color: #fff;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            font-size: 1.15em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 8px #0003;
+        }
+        .topnav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 16px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            padding: 6px 18px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .topnav a:hover {
+            background: #00bcf2;
+            color: #222;
+        }
+        .welcome {
+            background: #262626;
+            border-radius: 10px;
+            padding: 22px 28px;
+            margin-bottom: 28px;
+            color: #00bcf2;
+            font-size: 1.13em;
+            box-shadow: 0 2px 8px #0002;
+        }
+        .modules {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 32px;
+            margin-top: 36px;
+        }
+        .module {
+            flex: 1 1 260px;
+            background: #232323;
+            border-radius: 12px;
+            padding: 32px 20px 24px 20px;
+            box-shadow: 0 2px 12px #0003;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 220px;
+            max-width: 320px;
+            position: relative;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .module:hover {
+            box-shadow: 0 6px 24px #00bcf299;
+            transform: translateY(-3px) scale(1.03);
+        }
+        .module h2 {
+            margin-top: 0;
+            color: #00bcf2;
+            font-size: 1.25em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .module .icon {
+            font-size: 2.7em;
+            margin-bottom: 10px;
+            color: #fff;
+            background: #00bcf2;
+            border-radius: 18px;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px #00bcf288;
+        }
+        .status {
+            font-size: 1.08em;
+            margin: 12px 0 8px 0;
+            color: #b2e0f7;
+        }
+        .actions {
+            margin-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .actions button, .nav-btn {
+            background: #00bcf2;
+            color: #232323;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 0;
+            margin-bottom: 0;
+            box-shadow: 0 1px 4px #00bcf244;
+            transition: background 0.2s, color 0.2s;
+        }
+        .actions button:hover, .nav-btn:hover {
+            background: #fff;
+            color: #00bcf2;
+        }
+        .footer {
+            margin-top: 48px;
+            text-align: center;
+            color: #b2e0f7;
+            font-size: 1em;
+        }
+        @media (max-width: 900px) { .modules { flex-direction: column; align-items: center; } }
+    </style>
+        .topnav {
+            width: 100%;
+            background: #3949ab;
+            color: #fff;
+            padding: 12px 0;
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            font-size: 1.1em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .topnav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 12px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .topnav a:hover {
+            text-decoration: underline;
+        }
+        .welcome {
+            background: #e3eafc;
+            border-radius: 8px;
+            padding: 18px 24px;
+            margin-bottom: 24px;
+            color: #1a237e;
+            font-size: 1.1em;
+        }
+        .module {
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .module:hover {
+            box-shadow: 0 4px 16px #3949ab33;
+            transform: translateY(-2px) scale(1.02);
+        }
+        .footer {
+            margin-top: 48px;
+            text-align: center;
+            color: #888;
+            font-size: 0.98em;
+        }
+        .nav-btn {
+            background: #fff;
+            color: #3949ab;
+            border: 1px solid #3949ab;
+            border-radius: 4px;
+            padding: 6px 12px;
+            margin-right: 8px;
+            cursor: pointer;
+            font-size: 0.95em;
+        }
+        .nav-btn:hover {
+            background: #e3eafc;
+        }
+        body { font-family: Arial, sans-serif; background: #f4f6fa; margin: 0; padding: 0; }
+        .container { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px #0001; padding: 32px; }
+        h1 { color: #1a237e; }
+        .modules { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 32px; }
+        .module { flex: 1 1 260px; background: #e3eafc; border-radius: 8px; padding: 24px; box-shadow: 0 1px 4px #0001; }
+        .module h2 { margin-top: 0; color: #3949ab; }
+        .status { font-size: 1.1em; margin: 12px 0; }
+        .actions { margin-top: 16px; }
+        .actions button { background: #3949ab; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; }
+        .actions button:hover { background: #1a237e; }
+        @media (max-width: 700px) { .modules { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <script>
+        function goHome() {
+            window.scrollTo({top:0,behavior:'smooth'});
+        }
+        function goCalendar() {
+            document.getElementById('calendar-status').scrollIntoView({behavior:'smooth'});
+        }
+    </script>
+    <div class="topnav">
+        <a href="#" onclick="goHome()">Home</a>
+        <a href="#" onclick="goCalendar()">Calendar</a>
+    </div>
+    <div class="container">
+        <div class="welcome">
+            <b>Welcome to ICT AI Mentor!</b><br>
+            Your all-in-one dashboard for market analysis, signals, astro/gann/ict modules, and more.<br>
+            Use the modules below to monitor, analyze, and act on market opportunities in real time.
+        </div>
+        <h1>ICT AI Mentor Dashboard</h1>
+        <p>Monitor and control your ICT trading mentor modules in real time.</p>
+        <div class="modules">
+        <div class="module">
+            <div class="icon"><i class="fa-regular fa-calendar-days"></i></div>
+            <h2>Calendar</h2>
+            <div class="status">Status: <span id="calendar-status">Ready</span></div>
+            <div class="actions">
+                <button class="nav-btn" onclick="goHome()">Home</button>
+                <button onclick="alert('Show calendar events')">Show Events</button>
+                <button onclick="alert('Add new event')">Add Event</button>
+                <button onclick="alert('Export calendar')">Export</button>
+            </div>
+        </div>
+            <div class="module">
+                <div class="icon"><i class="fa-solid fa-file-lines"></i></div>
+                <h2>Day Report</h2>
+                <div class="status">Status: <span id="day-report-status">Ready</span></div>
+                <div class="actions">
+                    <button class="nav-btn" onclick="goHome()">Home</button>
+                    <button class="nav-btn" onclick="goCalendar()">Calendar</button>
+                    <button onclick="alert('Generate day report')">Generate Report</button>
+                    <button onclick="alert('Export day report')">Export</button>
+                </div>
+            </div>
+            <div class="module">
+                <div class="icon"><i class="fa-solid fa-star-of-david"></i></div>
+                <h2>Gann Module</h2>
+                <div class="status">Status: <span id="gann-status">Idle</span></div>
+                <div class="actions">
+                    <button class="nav-btn" onclick="goHome()">Home</button>
+                    <button class="nav-btn" onclick="goCalendar()">Calendar</button>
+                    <button onclick="alert('Run Gann analysis')">Run Analysis</button>
+                    <button onclick="alert('Draw Cycle on Chart')">Draw Cycle</button>
+                    <button onclick="alert('Send Gann Signal')">Send Signal</button>
+                    <button onclick="alert('Export Gann Events')">Export</button>
+                    <button onclick="alert('Add Gann Event to Calendar')">Add to Calendar</button>
+                </div>
+            </div>
+            <div class="module">
+                <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
+                <h2>Lightweight Charts</h2>
+                <div class="status">Status: <span id="charts-status">Waiting</span></div>
+                <div class="actions">
+                    <button class="nav-btn" onclick="goHome()">Home</button>
+                    <button class="nav-btn" onclick="goCalendar()">Calendar</button>
+                    <button onclick="alert('Show chart')">Show Chart</button>
+                    <button onclick="alert('Draw Marker')">Draw Marker</button>
+                    <button onclick="alert('Export Chart Data')">Export</button>
+                </div>
+            </div>
+            <div class="module">
+                <div class="icon"><i class="fa-solid fa-brain"></i></div>
+                <h2>ICT Module</h2>
+                <div class="status">Status: <span id="ict-status">Idle</span></div>
+                <div class="actions">
+                    <button class="nav-btn" onclick="goHome()">Home</button>
+                    <button class="nav-btn" onclick="goCalendar()">Calendar</button>
+                    <button onclick="alert('Run ICT Mentor')">Run Mentor</button>
+                    <button onclick="alert('Show ICT Signal')">Show Signal</button>
+                    <button onclick="alert('Send ICT Signal to Telegram')">Send to Telegram</button>
+                    <button onclick="alert('Export ICT Report')">Export</button>
+                </div>
+            </div>
+            <div class="module">
+                <div class="icon"><i class="fa-solid fa-moon"></i></div>
+                <h2>Astro Module</h2>
+                <div class="status">Status: <span id="astro-status">Idle</span></div>
+                <div class="actions">
+                    <button class="nav-btn" onclick="goHome()">Home</button>
+                    <button class="nav-btn" onclick="goCalendar()">Calendar</button>
+                    <button onclick="alert('Run Astro Analysis')">Run Analysis</button>
+                    <button onclick="alert('Show Astro Events')">Show Events</button>
+                    <button onclick="alert('Add Astro Event to Calendar')">Add to Calendar</button>
+                    <button onclick="alert('Export Astro Data')">Export</button>
+                </div>
+            </div>
+            <div class="module">
+                <div class="icon"><i class="fa-solid fa-eye"></i></div>
+                <h2>Astro Observer</h2>
+                <div class="status">Status: <span id="astro-observer-status">Active</span></div>
+                <div class="actions">
+                    <button class="nav-btn" onclick="goHome()">Home</button>
+                    <button class="nav-btn" onclick="goCalendar()">Calendar</button>
+                    <button onclick="alert('Observe Astro Events')">Observe</button>
+                    <button onclick="alert('Export Astro Observer Data')">Export</button>
+                </div>
+            </div>
+            <div class="module">
+                <div class="icon"><i class="fa-solid fa-database"></i></div>
+                <h2>Market Data</h2>
+                <div class="status">Status: <span id="data-status">Ready</span></div>
+                <div class="actions">
+                    <button onclick="alert('Load price data')">Load Data</button>
+                    <button onclick="alert('Export Market Data')">Export</button>
+                </div>
+            </div>
+            <div class="module">
+                <div class="icon"><i class="fa-solid fa-microchip"></i></div>
+                <h2>ICT Brain</h2>
+                <div class="status">Status: <span id="brain-status">Idle</span></div>
+                <div class="actions">
+                    <button onclick="alert('Run ICT Brain')">Run Brain</button>
+                    <button onclick="alert('Show ICT Brain Output')">Show Output</button>
+                    <button onclick="alert('Export ICT Brain Data')">Export</button>
+                </div>
+            </div>
+            <div class="module">
+                <div class="icon"><i class="fa-brands fa-telegram"></i></div>
+                <h2>Signal & Telegram</h2>
+                <div class="status">Status: <span id="signal-status">Waiting</span></div>
+                <div class="actions">
+                    <button onclick="alert('Send test signal')">Send Test Signal</button>
+                    <button onclick="alert('Show Last Signal')">Show Last Signal</button>
+                </div>
+            </div>
+            <div class="module">
+                <div class="icon"><i class="fa-solid fa-book"></i></div>
+                <h2>Trade Memory</h2>
+                <div class="status">Status: <span id="memory-status">Active</span></div>
+                <div class="actions">
+                    <button onclick="alert('Show trade memory')">Show Memory</button>
+                    <button onclick="alert('Add Journal Entry')">Add Entry</button>
+                    <button onclick="alert('Export Journal')">Export</button>
+                </div>
+            </div>
+        </div>
+        <div style="margin-top:40px; color:#888; font-size:0.95em;">
+            <b>Tip:</b> Use this dashboard on mobile or desktop to monitor, trigger, and review your ICT mentor modules.<br>
+            Future: Add live charts, Astro/Gann/SMT modules, and more controls here.
+        </div>
+        <div class="footer">
+            &copy; 2025 ICT AI Mentor &mdash; Built for multi-device trading and learning.<br>
+            <span style="font-size:0.93em;">SRAVANTAMARANA / 2026-astroquantdayplanner</span>
+        </div>
+    </div>
+</body>
+<script src="dashboard.js"></script>
+</html>

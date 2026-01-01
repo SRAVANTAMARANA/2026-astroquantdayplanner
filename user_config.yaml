@@ -1,0 +1,14 @@
+# User configuration for AstroQuant Day Planner
+# Edit this file to customize your daily report preferences.
+
+report_time: "08:00"  # Time (24h) to send the daily report (e.g., "08:00")
+language: "en"         # Language for the report: "en" (English), "te" (Telugu)
+report_aspects:
+  - astro
+  - ict
+  - news
+  - summary
+  - forecast
+telegram_chat_id: "YOUR_TELEGRAM_CHAT_ID"  # Override default chat ID if needed
+
+# Add more options as needed

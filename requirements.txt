@@ -1,0 +1,9 @@
+pandas
+pytz
+# requirements.txt for AstroQuant Day Planner
+PyYAML
+yfinance
+flatlib
+feedparser
+pandas
+requests
