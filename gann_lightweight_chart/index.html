@@ -11,9 +11,21 @@
 <body>
 
 
+
+<div style="position:absolute;top:10px;left:10px;z-index:10;">
+    <button onclick="toggleOverlay('gann')">Gann</button>
+    <button onclick="toggleOverlay('astro')">Astro</button>
+    <button onclick="toggleOverlay('ict')">ICT</button>
+    <button onclick="toggleOverlay('imbalance')">Imbalance</button>
+    <button onclick="toggleOverlay('liquidity')">Liquidity</button>
+    <button onclick="toggleOverlay('smt')">SMT</button>
+    <button onclick="toggleOverlay('journal')">Journal</button>
+</div>
+
 <div id="chart"></div>
 
-<div id="journal-panel" style="max-width:900px;margin:32px auto 0 auto;"></div>
+<div id="journal-panel" style="display:none;position:absolute;bottom:0;left:0;width:100vw;max-height:40vh;overflow:auto;z-index:20;background:#fff;box-shadow:0 -2px 8px #0008;"></div>
+
 
 <script src="chart.js"></script>
 <script src="gann_events.js"></script>

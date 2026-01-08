@@ -1,0 +1,190 @@
+      <div class="astro-section">
+        <h2>Astro Trading Recommendations</h2>
+        <ul class="astro-concept-list">
+          <li><b>Trade with the Moon:</b> Favor trend trades when Moon is waxing (Shukla Paksha), fade extremes near Full/New Moon (Purnima/Amavasya).</li>
+          <li><b>Watch Nakshatra Shifts:</b> Expect volatility and reversals when Moon changes nakshatra, especially to Rohini, Magha, or Mula.</li>
+          <li><b>Align with Major News:</b> If major news coincides with strong astro (e.g., Mercury retrograde, Mars ingress), expect outsized moves and use wider stops.</li>
+          <li><b>Intraday Timing:</b> Use planetary hours and Moon aspects for timing entries/exits; avoid trading during void-of-course Moon.</li>
+          <li><b>Future Event Prep:</b> Reduce risk or take profits ahead of high-impact astro events (see table above), especially if technicals confirm.</li>
+          <li><b>Journaling:</b> Record outcomes of trades taken on key astro dates to refine your edge over time.</li>
+        </ul>
+        <p style="color:#a3e635;">These recommendations are for educational purposes. Always combine astro with price action and risk management.</p>
+      </div>
+    <div class="astro-section">
+      <h2>Future Astro Events</h2>
+      <table>
+        <tr><th>Date</th><th>Event</th><th>Astro Context</th><th>Trading Note</th></tr>
+        <tr><td>2026-01-05</td><td>Venus enters Pisces</td><td>Venus exalted, Moon trine Jupiter</td><td>Potential bullish reversal</td></tr>
+        <tr><td>2026-01-07</td><td>Mercury conjunct Saturn</td><td>Moon in Gemini, Mercury cazimi</td><td>Volatility, news-driven</td></tr>
+        <tr><td>2026-01-10</td><td>Sun square Uranus</td><td>Moon in Cancer, Sun-Uranus tension</td><td>Breakout or whipsaw</td></tr>
+        <tr><td>2026-01-12</td><td>Full Moon (Purnima)</td><td>Moon in Capricorn, Sun in Cancer</td><td>Major trend change window</td></tr>
+      </table>
+      <p style="margin-top:10px;color:#facc15;">Monitor these events for high-probability setups. Update with live data for best results.</p>
+    </div>
+  <div class="astro-section">
+    <h2>Astro Observer (3-Year Analysis)</h2>
+    <p>Analyze and observe 3 years of astro events, nakshatra/tithi, and price action. This module uses the backend analytics already coded for deep research and pattern discovery.</p>
+    <button id="run-astro-observer" style="background:#38bdf8;color:#232946;border:none;padding:8px 22px;border-radius:6px;font-size:1.1em;cursor:pointer;margin-bottom:12px;">Run 3-Year Astro Analysis</button>
+    <div id="astro-observer-result" style="margin-top:18px;background:#181B2A;padding:16px 12px;border-radius:8px;min-height:40px;"></div>
+  </div>
+
+  <script>
+  document.getElementById('run-astro-observer').onclick = async function() {
+    const resultDiv = document.getElementById('astro-observer-result');
+    resultDiv.textContent = 'Running analysis... (this may take a while)';
+    try {
+      // Placeholder: Replace with real API call to backend
+      // const resp = await fetch('/api/astro/observer?years=3');
+      // const data = await resp.json();
+      // resultDiv.textContent = data.summary || JSON.stringify(data);
+      resultDiv.textContent = 'Analysis complete! (Integrate backend for real results)';
+    } catch (e) {
+      resultDiv.textContent = 'Error running analysis: ' + e;
+    }
+  };
+  </script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Astrology Module</title>
+  <style>
+    body { background: #181B2A; color: #fff; font-family: Arial, sans-serif; margin: 0; }
+    .astro-header { background: #232946; padding: 24px 0 12px 0; text-align: center; box-shadow: 0 2px 12px #0003; }
+    .astro-header h1 { font-size: 2.2em; margin: 0; }
+    .astro-header .icon { font-size: 2.5em; margin-bottom: 0.2em; }
+    .astro-nav { text-align: center; margin: 12px 0 24px 0; }
+    .astro-nav a { color: #38bdf8; text-decoration: underline; margin: 0 12px; }
+    .astro-section { max-width: 1100px; margin: 24px auto; background: #232946; border-radius: 12px; box-shadow: 0 2px 12px #0003; padding: 24px; }
+    .astro-section h2 { margin-top: 0; color: #38bdf8; }
+    table { width: 100%; border-collapse: collapse; margin: 18px 0; background: #181B2A; }
+    th, td { border: 1px solid #2d334a; padding: 8px 10px; text-align: center; }
+    th { background: #232946; color: #38bdf8; }
+    tr:nth-child(even) { background: #20243a; }
+    .news-future { color: #facc15; font-weight: bold; }
+    .astro-concept-list { margin: 0 0 18px 0; padding: 0 0 0 18px; }
+    .astro-concept-list li { margin-bottom: 6px; }
+    @media (max-width: 700px) { .astro-section { padding: 10px; } }
+  </style>
+</head>
+<body>
+  <div class="astro-header">
+    <div class="icon">🔮</div>
+    <h1>Astrology Trading & Analysis</h1>
+    <div class="astro-nav">
+      <a href="index.html">← Back to Dashboard</a>
+    </div>
+  </div>
+
+  <div class="astro-section">
+    <h2>Astro Concepts for Trading</h2>
+    <ul class="astro-concept-list">
+      <li><b>Intraday Astro:</b> Use planetary hours, moon sign changes, and fast-moving aspects for timing entries/exits.</li>
+      <li><b>Nakshatra & Tithi:</b> Track lunar mansions and tithi for daily bias and volatility windows.</li>
+      <li><b>Planetary Events:</b> Watch for conjunctions, oppositions, retrogrades, and ingress for trend changes.</li>
+      <li><b>Astro-News Integration:</b> Align major news releases with planetary events for high-probability setups.</li>
+      <li><b>Future News & Astro:</b> Prepare for upcoming volatility by combining economic calendar with astro cycles.</li>
+    </ul>
+  </div>
+
+  <div class="astro-section">
+    <h2>Intraday Astro Timings</h2>
+    <table id="intraday-astro-table">
+      <tr><th>Time (UTC)</th><th>Planetary Hour</th><th>Moon Sign</th><th>Key Aspect</th></tr>
+      <tr><td colspan="4" style="text-align:center;color:#888;">Loading...</td></tr>
+    </table>
+  </div>
+
+  <div class="astro-section">
+    <h2>Nakshatra & Tithi Table</h2>
+    <table id="nakshatra-tithi-table">
+      <tr><th>Date</th><th>Nakshatra</th><th>From</th><th>To</th><th>Moon °</th><th>Sun °</th><th>Tithi</th></tr>
+      <tr><td colspan="7" style="text-align:center;color:#888;">Loading...</td></tr>
+    </table>
+  </div>
+
+  <div class="astro-section">
+    <h2>Astro News & Future Events</h2>
+    <table id="astro-news-table">
+      <tr><th>Time (UTC)</th><th>Event</th><th>Astro Context</th><th>Impact</th></tr>
+      <tr><td colspan="4" style="text-align:center;color:#888;">Loading...</td></tr>
+    </table>
+    <p style="margin-top:10px;color:#a3e635;">All times UTC. Combine news and astro for best results. <b>Plan ahead!</b></p>
+  <script>
+  // --- Live Nakshatra & Tithi Table ---
+  async function loadNakshatraTithi() {
+    const table = document.getElementById('nakshatra-tithi-table');
+    try {
+      const resp = await fetch('/astro-events');
+      const data = await resp.json();
+      if (data && data.moon && data.moon.periods) {
+        let html = `<tr><th>Date</th><th>Nakshatra</th><th>From</th><th>To</th><th>Moon °</th><th>Sun °</th><th>Tithi</th></tr>`;
+        for (const p of data.moon.periods) {
+          html += `<tr><td>${data.date}</td><td>${p.nakshatra}</td><td>${p.from_time}</td><td>${p.to_time}</td><td>${p.moon_longitude_start}→${p.moon_longitude_end}</td><td>${p.sun_longitude_start}→${p.sun_longitude_end}</td><td>${data.tithi}</td></tr>`;
+        }
+        table.innerHTML = html;
+      } else {
+        table.innerHTML = '<tr><td colspan="7">No data</td></tr>';
+      }
+    } catch (e) {
+      table.innerHTML = `<tr><td colspan="7">Error: ${e}</td></tr>`;
+    }
+  }
+  // --- Live Astro News & Future Events (stub: replace with real API if available) ---
+  async function loadAstroNews() {
+    const table = document.getElementById('astro-news-table');
+    try {
+      const resp = await fetch('/api/astro_news');
+      const data = await resp.json();
+      if (data && data.events) {
+        let html = `<tr><th>Time (UTC)</th><th>Event</th><th>Astro Context</th><th>Impact</th></tr>`;
+        for (const e of data.events) {
+          html += `<tr><td>${e.time}</td><td>${e.event}</td><td>${e.astro_context}</td><td class="news-future">${e.impact}</td></tr>`;
+        }
+        table.innerHTML = html;
+      } else {
+        table.innerHTML = '<tr><td colspan="4">No data</td></tr>';
+      }
+    } catch (e) {
+      table.innerHTML = `<tr><td colspan="4">Error: ${e}</td></tr>`;
+    }
+  }
+  // --- Live Intraday Astro Timings (stub: replace with real API if available) ---
+  async function loadIntradayAstro() {
+    const table = document.getElementById('intraday-astro-table');
+    try {
+      const resp = await fetch('/api/intraday_astro');
+      const data = await resp.json();
+      if (data && data.timings) {
+        let html = `<tr><th>Time (UTC)</th><th>Planetary Hour</th><th>Moon Sign</th><th>Key Aspect</th></tr>`;
+        for (const t of data.timings) {
+          html += `<tr><td>${t.time}</td><td>${t.planetary_hour}</td><td>${t.moon_sign}</td><td>${t.aspect}</td></tr>`;
+        }
+        table.innerHTML = html;
+      } else {
+        table.innerHTML = '<tr><td colspan="4">No data</td></tr>';
+      }
+    } catch (e) {
+      table.innerHTML = `<tr><td colspan="4">Error: ${e}</td></tr>`;
+    }
+  }
+  // --- Astro Observer 3-Year Analysis ---
+  document.getElementById('run-astro-observer').onclick = async function() {
+    const resultDiv = document.getElementById('astro-observer-result');
+    resultDiv.textContent = 'Running analysis... (this may take a while)';
+    try {
+      const resp = await fetch('/api/astro/observer?years=3');
+      const data = await resp.json();
+      resultDiv.textContent = data.summary || JSON.stringify(data);
+    } catch (e) {
+      resultDiv.textContent = 'Error running analysis: ' + e;
+    }
+  };
+  // --- On Page Load: Fetch all live data ---
+  window.addEventListener('DOMContentLoaded', () => {
+    loadNakshatraTithi();
+    loadAstroNews();
+    loadIntradayAstro();
+  });
+  </script>

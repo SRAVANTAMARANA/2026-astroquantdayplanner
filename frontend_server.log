@@ -1,0 +1,79 @@
+nohup: ignoring input
+127.0.0.1 - - [04/Jan/2026 00:47:41] "HEAD /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 00:47:44] "GET /index.html HTTP/1.1" 304 -
+127.0.0.1 - - [04/Jan/2026 00:47:45] "GET /favicon.ico HTTP/1.1" 304 -
+127.0.0.1 - - [04/Jan/2026 00:49:18] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 00:50:39] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 00:50:39] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 00:52:36] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 00:52:36] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 00:53:33] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 00:53:33] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 00:53:39] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 00:53:39] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 00:55:03] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 00:55:03] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 00:55:13] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 00:55:13] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 00:55:13] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 00:55:13] "GET /favicon.ico HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 00:55:54] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 00:55:54] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 00:55:54] "GET /live_xauusd HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 00:55:54] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 00:55:54] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 00:56:25] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 00:56:25] "GET /live_xauusd HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 00:56:55] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 00:56:55] "GET /live_xauusd HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 00:57:25] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 00:57:25] "GET /live_xauusd HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 00:57:55] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 00:57:55] "GET /live_xauusd HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 00:58:26] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 00:58:26] "GET /live_xauusd HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 00:58:56] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 00:59:00] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 00:59:00] "GET /live_xauusd HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 00:59:00] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 00:59:01] "GET /favicon.ico HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 00:59:01] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 00:59:01] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 01:02:36] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:02:42] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:02:42] "GET /favicon.ico HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:02:47] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:02:49] "GET /favicon.ico HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:04:29] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:06:24] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:06:26] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:06:27] "GET /favicon.ico HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:08:35] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:09:24] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:09:24] "GET /favicon.ico HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:10:48] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:13:23] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:16:31] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:20:34] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:21:05] "GET /astrology.html HTTP/1.1" 304 -
+127.0.0.1 - - [04/Jan/2026 01:21:05] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 01:21:05] "GET /astro-events HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 01:21:05] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 01:21:05] "GET /api/astro_news HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 01:21:06] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 01:21:06] "GET /api/intraday_astro HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 01:21:11] "GET /news.html HTTP/1.1" 304 -
+127.0.0.1 - - [04/Jan/2026 01:24:30] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:28:49] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:32:31] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:34:04] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:36:15] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 01:37:38] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 02:14:30] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 02:20:08] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 02:22:38] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 02:25:44] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 02:28:13] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 02:30:13] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 02:37:04] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 02:43:15] "GET /index.html HTTP/1.1" 200 -

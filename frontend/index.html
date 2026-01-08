@@ -1,301 +1,1225 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>ICT AI Mentor Chart</title>
-  <link rel="stylesheet" href="/frontend/style.css">
-  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AstroQuant – ICT Drawer Dashboard</title>
+
+<!-- Lightweight Charts -->
+<script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+
+<script>
+// Utility: Sanitize overlay/line series data for Lightweight Charts
+function sanitizeOverlayData(data) {
+  return (Array.isArray(data) ? data : []).map(bar => {
+    let timeObj = bar.time;
+    if (typeof timeObj === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(timeObj)) {
+      const [year, month, day] = timeObj.split('-').map(Number);
+      timeObj = { year, month, day };
+    }
+    return {
+      ...bar,
+      time: timeObj
+    };
+  }).filter(bar => bar.time && typeof bar.time === 'object' && bar.time.year && bar.time.month && bar.time.day && bar.value != null);
+}
+// Utility: Get selected symbol from dropdown
+function getSelectedSymbol() {
+  // Always return XAUUSD to match backend restriction
+  return 'XAUUSD';
+}
+// Utility: Get selected interval from dropdown
+function getSelectedInterval() {
+  const sel = document.getElementById('timeframe-select');
+  if (sel && sel.value) return sel.value;
+  return '1h';
+}
+
+// Set default values for symbol and interval dropdowns on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function() {
+  const symbolSel = document.getElementById('symbol-select');
+  if (symbolSel) symbolSel.value = 'XAUUSD';
+  const tfSel = document.getElementById('timeframe-select');
+  if (tfSel) tfSel.value = '5min';
+  // If timeframe options are missing, populate them
+  if (tfSel && tfSel.options.length < 5) {
+    tfSel.innerHTML = '';
+    const timeframes = [
+      { value: '1min', label: '1 Min' },
+      { value: '5min', label: '5 Min' },
+      { value: '15min', label: '15 Min' },
+      { value: '30min', label: '30 Min' },
+      { value: '1h', label: '1 Hour' },
+      { value: '4h', label: '4 Hour' },
+      { value: '1day', label: '1 Day' },
+      { value: '1week', label: '1 Week' },
+      { value: '1month', label: '1 Month' }
+    ];
+    for (const tf of timeframes) {
+      const opt = document.createElement('option');
+      opt.value = tf.value;
+      opt.textContent = tf.label;
+      tfSel.appendChild(opt);
+    }
+    tfSel.value = '5min';
+  }
+});
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AstroQuant – ICT Drawer Dashboard</title>
+
+<!-- Lightweight Charts -->
+<script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+
+<style>
+/* ========== GLOBAL ========== */
+body {
+  margin: 0;
+  background: #0b1020;
+  color: #fff;
+  font-family: Arial, sans-serif;
+}
+
+/* ========== HEADER & TOPBAR ========== */
+header {
+  height: 48px;
+  background: #151b34;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+#topbar {
+  height: 48px;
+  background: #1a2248;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+}
+#topbar button {
+  margin-right: 8px;
+  height: 36px;
+  background: #243b6b;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  padding: 0 12px;
+  cursor: pointer;
+}
+#topbar button:hover {
+  background: #1e90ff;
+}
+
+
+/* ========== CHART ========== */
+#chart {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 96px);
+  min-width: 400px;
+  min-height: 300px;
+  box-sizing: border-box;
+  margin-top: 0;
+}
+
+#chart-error {
+  display: none;
+  color: #f87171;
+  font-weight: bold;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  background: #232946;
+  padding: 12px 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px #0007;
+  border: 2px solid #f87171;
+  font-size: 1.3em;
+  text-align: center;
+}
+</style>
 </head>
+
 <body>
 
-<!-- Removed old dashboard and modal overlay. Only premium dashboard tiles remain below. -->
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AstroQuant Premium Dashboard</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #0a1020; color: #f5e9d0; }
-    .hero {
-      background: linear-gradient(120deg, #0a1020 0%, #1a223a 60%, #bfa14a 100%);
-      padding: 3em 2em 2em 2em;
-      border-radius: 0 0 36px 36px;
-      box-shadow: 0 10px 40px #0007;
-      text-align: center;
-      position: relative;
-    }
-    .hero h1 {
-      font-size: 2.8em;
-      font-weight: 900;
-      margin: 0 0 0.2em 0;
-      letter-spacing: 1.5px;
-      color: #ffd700;
-      text-shadow: 0 2px 16px #000a, 0 0px 24px #bfa14a99;
-    }
-    .hero .tagline {
-      font-size: 1.28em;
-      color: #f5e9d0;
-      margin-bottom: 1.2em;
-      text-shadow: 0 1px 8px #0004;
-    }
-    .live-ticker {
-      display: flex; justify-content: center; align-items: center;
-      gap: 2em; font-size: 1.1em; margin-bottom: 1.2em;
-    }
-    .live-ticker .ticker-item {
-      background: rgba(191,161,74,0.10); border-radius: 10px; padding: 0.5em 1.2em;
-      display: flex; align-items: center; gap: 0.5em;
-      font-weight: 700;
-      color: #ffd700;
-      box-shadow: 0 1px 8px #bfa14a33;
-    }
-    .theme-toggle {
-      position: absolute; top: 1.5em; right: 2em;
-      background: rgba(191,161,74,0.18); border: none; border-radius: 50%; width: 48px; height: 48px;
-      color: #ffd700; font-size: 1.4em; cursor: pointer; transition: background 0.2s;
-      box-shadow: 0 2px 8px #bfa14a33;
-      display: flex; align-items: center; justify-content: center;
-      z-index: 10;
-    }
-    .theme-toggle:hover { background: rgba(191,161,74,0.32); }
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-      gap: 36px;
-      max-width: 1400px;
-      margin: -60px auto 0 auto;
-      padding: 40px 20px;
-    }
-    .tile {
-      background: linear-gradient(135deg, #181c24 60%, #232a3d 100%);
-      border-radius: 28px;
-      box-shadow: 0 6px 32px #0005, 0 2px 12px #bfa14a22;
-      padding: 36px 28px 28px 28px;
-      min-height: 340px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: flex-start;
-      transition: box-shadow 0.22s, transform 0.18s;
-      position: relative;
-      overflow: hidden;
-      backdrop-filter: blur(10px);
-    }
-    .tile:hover {
-      box-shadow: 0 16px 56px #bfa14a55, 0 8px 32px #ffd70044;
-      transform: translateY(-4px) scale(1.035);
-      z-index: 2;
-    }
-    .tile .icon {
-      font-size: 3.3em;
-      margin-bottom: 1em;
-      color: #ffd700;
-      background: linear-gradient(135deg, #bfa14a 60%, #ffd700 100%);
-      border-radius: 22px;
-      padding: 0.6em 1.1em;
-      box-shadow: 0 6px 24px #bfa14a55, 0 2px 12px #ffd70055;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
-    }
-    .tile:focus-within, .tile:focus, .tile:hover {
-      outline: 2px solid #ffd700;
-      outline-offset: 2px;
-    }
-    .tile .icon:focus, .tile .icon:active {
-      outline: 2px solid #bfa14a;
-      outline-offset: 2px;
-    }
-    .tile {
-      cursor: pointer;
-    }
-    .tile:active {
-      transform: scale(0.98);
-      box-shadow: 0 2px 8px #bfa14a55;
-    }
-    .tile:hover .icon {
-      background: linear-gradient(135deg, #ffd700 60%, #bfa14a 100%);
-      color: #232a3d;
-      transform: scale(1.13) rotate(-3deg);
-      box-shadow: 0 12px 36px #ffd700cc, 0 4px 16px #bfa14acc;
-    }
-    .tile h2 {
-      margin: 0 0 0.5em 0;
-      font-size: 1.35em;
-      font-weight: 800;
-      color: #ffd700;
-      text-shadow: 0 1px 8px #bfa14a44;
-    }
-    .tile .desc {
-      color: #f5e9d0;
-      font-size: 1.12em;
-      margin-bottom: 1.3em;
-      text-shadow: 0 1px 6px #0002;
-    }
-    .tile .action-btn {
-      background: linear-gradient(90deg, #bfa14a 60%, #ffd700 100%);
-      color: #232a3d;
-      border: none;
-      border-radius: 10px;
-      padding: 12px 24px;
-      font-size: 1.08em;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: auto;
-      box-shadow: 0 2px 8px #bfa14a33;
-      transition: background 0.18s, box-shadow 0.18s;
-    }
-    .tile .action-btn:hover { background: linear-gradient(90deg, #ffd700 60%, #bfa14a 100%); color: #bfa14a; }
-    @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } }
-  </style>
-</head>
-<body>
-  <div class="hero">
-    <button class="theme-toggle" id="themeToggle" title="Switch theme">
-      <i class="fa-solid fa-moon" id="themeIcon"></i>
-    </button>
-    <h1><i class="fa-solid fa-star-of-david"></i> AstroQuant Premium</h1>
-    <div class="tagline">Next-gen Astro, Gann, ICT & AI Trading Analytics — Live, Modular, and Beautiful</div>
-    <div class="live-ticker" id="liveTicker">
-      <div class="ticker-item"><i class="fa-solid fa-coins"></i> XAUUSD: <span id="xauusdPrice">--</span></div>
-      <div class="ticker-item"><i class="fa-solid fa-bolt"></i> Signals: <span id="signalCount">--</span></div>
-      <div class="ticker-item"><i class="fa-solid fa-calendar-days"></i> Events: <span id="eventCount">--</span></div>
-    </div>
+<div id="main-container" style="display:flex; flex-direction:column; height:100vh; width:100vw; overflow:hidden;">
+  <!-- STATUS DISPLAY (READ-ONLY) -->
+  <div id="status-display" style="position:fixed;top:20px;right:24px;z-index:10000;background:#232946;color:#a3e635;padding:10px 18px;border-radius:8px;font-size:1em;box-shadow:0 2px 12px #0007;min-width:220px;max-width:320px;pointer-events:none;">
+    <div><b>TIME:</b> <span id="status-time">—</span></div>
+    <div><b>PLANET:</b> <span id="status-planet">—</span></div>
+    <div><b>PRICE:</b> <span id="status-price">—</span></div>
+    <div><b>STATE:</b> <span id="status-state">—</span></div>
+    <div><b>ACTION:</b> <span id="status-action">WAIT</span></div>
   </div>
-  <div class="dashboard" id="dashboard">
-    <div class="tile" tabindex="0" aria-label="Live Chart" id="tile-livechart">
-      <div class="icon" aria-label="Live Chart Icon"><i class="fa-solid fa-chart-line"></i></div>
-      <h2>Live Chart</h2>
-      <div class="desc">Real-time, multi-timeframe charting with overlays for signals, astro, and Gann events.</div>
-      <button class="action-btn" tabindex="-1">Show Chart</button>
+  <header style="flex:0 0 48px; background:#151b34; display:flex; align-items:center; justify-content:flex-start; padding:0 16px; box-shadow: 0 2px 8px #0005;">
+    <div id="icon-bar" style="display:flex; align-items:center; gap:8px;">
+      <button title="Candlestick" id="icon-candle" class="tv-btn"><span>🕯️</span></button>
+      <button title="Line Chart" id="icon-line" class="tv-btn"><span>📈</span></button>
+      <button title="Area Chart" id="icon-area" class="tv-btn"><span>🌊</span></button>
+      <button title="Bar Chart" id="icon-bar" class="tv-btn"><span>📊</span></button>
+      <button title="Heikin-Ashi" id="icon-heikin" class="tv-btn"><span>🧧</span></button>
+      <button title="Volume" id="icon-volume" class="tv-btn"><span>🔈</span></button>
+      <button title="Export Chart" id="icon-export" class="tv-btn"><span>📤</span></button>
+      <button title="Theme" id="icon-theme" class="tv-btn"><span>🌓</span></button>
+      <select id="symbol-select" class="tv-select">
+        <option value="XAU/USD" selected>XAU/USD</option>
+      </select>
+      <button title="Compare Symbol" id="compare-symbol" class="tv-btn tv-btn-blue">Compare</button>
+      <select id="indicator-select" class="tv-select">
+        <option value="sma">SMA</option>
+        <option value="ema">EMA</option>
+        <option value="rsi">RSI</option>
+        <option value="macd">MACD</option>
+        <option value="bollinger">Bollinger Bands</option>
+      </select>
+      <input id="indicator-param" type="number" min="2" max="100" value="14" class="tv-input" placeholder="Param">
+      <button title="Add Indicator" id="add-indicator" class="tv-btn tv-btn-blue">Add</button>
+      <button title="Toggle Indicator" id="toggle-indicator" class="tv-btn tv-btn-red">Off</button>
+      <select id="timeframe-select" class="tv-select">
+        <option value="1min">1m</option>
+        <option value="5min">5m</option>
+        <option value="15min">15m</option>
+        <option value="30min">30m</option>
+        <option value="1h">1h</option>
+        <option value="4h">4h</option>
+        <option value="1day" selected>1d</option>
+        <option value="1week">1w</option>
+        <option value="1month">1M</option>
+      </select>
+      <button title="Apply Timeframe" id="apply-timeframe" class="tv-btn tv-btn-blue">Apply</button>
+      <button title="Draw Trendline" id="draw-trendline" class="tv-btn tv-btn-green">Trendline</button>
+      <button title="Draw Fib" id="draw-fib" class="tv-btn tv-btn-green">Fib</button>
+      <button title="Annotate" id="annotate-chart" class="tv-btn tv-btn-green">Annotate</button>
     </div>
-    <div class="tile" tabindex="0" aria-label="AI/ML Analytics" id="tile-ml">
-      <div class="icon" aria-label="AI/ML Analytics Icon"><i class="fa-solid fa-brain"></i></div>
-      <h2>AI/ML Analytics</h2>
-      <div class="desc">Machine learning insights, feature importance, and predictive analytics for XAUUSD.</div>
-      <button class="action-btn" tabindex="-1">Show Analytics</button>
-    </div>
-    <div class="tile" tabindex="0" aria-label="Astro Events" id="tile-astro">
-      <div class="icon" aria-label="Astro Events Icon"><i class="fa-solid fa-moon"></i></div>
-      <h2>Astro Events</h2>
-      <div class="desc">Detailed nakshatra, tithi, and planetary event timings with visualizations.</div>
-      <button class="action-btn" tabindex="-1">Show Events</button>
-    </div>
-    <div class="tile" tabindex="0" aria-label="Gann Analytics" id="tile-gann">
-      <div class="icon" aria-label="Gann Analytics Icon"><i class="fa-solid fa-star-of-david"></i></div>
-      <h2>Gann Analytics</h2>
-      <div class="desc">Gann cycles, Square of Nine, and harmonic overlays for advanced market timing.</div>
-      <button class="action-btn" tabindex="-1">Show Gann</button>
-    </div>
-    <div class="tile" tabindex="0" aria-label="Signals Feed" id="tile-signals">
-      <div class="icon" aria-label="Signals Feed Icon"><i class="fa-solid fa-bolt"></i></div>
-      <h2>Signals Feed</h2>
-      <div class="desc">Unified, real-time feed of all trading signals with instant alerts and filtering.</div>
-      <button class="action-btn" tabindex="-1">Show Signals</button>
-    </div>
-    <div class="tile" tabindex="0" aria-label="ICT Mentor" id="tile-ict">
-      <div class="icon" aria-label="ICT Mentor Icon"><i class="fa-solid fa-robot"></i></div>
-      <h2>ICT Mentor</h2>
-      <div class="desc">Inner Circle Trader logic, bias, and trade signals — automated and explainable.</div>
-      <button class="action-btn" tabindex="-1">Show Mentor</button>
-    </div>
-    <!-- Central module content area, now inside dashboard -->
-    <div id="module-content" style="grid-column: 1 / -1; max-width:1200px; margin:0 auto; padding:32px 24px 40px 24px; background:rgba(10,16,32,0.95); border-radius:24px; box-shadow:0 4px 32px #0003; display:none;"></div>
-  </div>
-  <!-- Existing event, chart, and ML dashboard blocks (hidden by default, shown via navigation) -->
-  <div style="display:none">
-    <!-- ...existing code for event-blocks, chart-block, ml-dashboard... -->
-  </div>
-  <script>
-    // Theme selector toggle
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = document.getElementById('themeIcon');
-    let premiumTheme = true;
-    function setPremiumTheme() {
-      document.body.style.background = '#0a1020';
-      document.body.style.color = '#f5e9d0';
-      themeIcon.className = 'fa-solid fa-moon';
-      themeToggle.style.color = '#ffd700';
-      // Optionally update other elements for premium
-    }
-    function setLightTheme() {
-      document.body.style.background = '#f8f9fa';
-      document.body.style.color = '#232a3d';
-      themeIcon.className = 'fa-solid fa-sun';
-      themeToggle.style.color = '#bfa14a';
-      // Optionally update other elements for light
-    }
-    themeToggle.onclick = function() {
-      premiumTheme = !premiumTheme;
-      if (premiumTheme) setPremiumTheme();
-      else setLightTheme();
-    };
-    setPremiumTheme();
-    // Live ticker updates (simulate for now)
-    function updateTicker() {
-      fetch('/live_xauusd').then(r=>r.json()).then(d=>{
-        document.getElementById('xauusdPrice').textContent = d.price || '--';
-      }).catch(()=>{});
-      // Simulate signals/events
-      document.getElementById('signalCount').textContent = Math.floor(Math.random()*5+1);
-      document.getElementById('eventCount').textContent = Math.floor(Math.random()*10+5);
-    }
-    setInterval(updateTicker, 3000); updateTicker();
+  </header>
+  <div id="topbar" style="flex:0 0 48px;">
+  <button onclick="showPanel('ict')" title="ICT Panel">☰ ICT</button>
+  <button onclick="showPanel('astro')" title="Astro Panel">🔮 Astro</button>
+  <button onclick="showPanel('gann')" title="Gann Panel">🔷 Gann</button>
+  <button onclick="showPanel('time')" title="Time Panel">⏳ Time</button>
+  <button onclick="showPanel('price')" title="Price Panel">💲 Price</button>
+  <button onclick="showPanel('signal')" title="Signal Panel">📶 Signal</button>
+  <span style="margin-left:16px;display:flex;align-items:center;gap:8px;">
+    <button onclick="window.open('astrology.html','_blank')" title="Astrology Module" style="font-size:1.3em;padding:0 10px;">🔮</button>
+    <button onclick="window.open('news.html','_blank')" title="News Module" style="font-size:1.3em;padding:0 10px;">📰</button>
+    <button onclick="toggleAIMentor()" title="AI Mentor" style="font-size:1.3em;padding:0 10px;">🤖</button>
+  </span>
 
-    // Module content logic
-    const dashboard = document.getElementById('dashboard');
-    const moduleContent = document.getElementById('module-content');
-    function showModuleContent(html) {
-      // Hide all tiles except module-content
-      Array.from(dashboard.children).forEach(child => {
-        if (child !== moduleContent) child.style.display = 'none';
-      });
-      moduleContent.innerHTML = `<button id='closeModule' style='float:right;margin:-12px -8px 8px 8px;padding:8px 18px;border-radius:8px;background:#ffd700;color:#232a3d;font-weight:700;border:none;cursor:pointer;box-shadow:0 2px 8px #bfa14a33;'>Close</button>` + html;
-      moduleContent.style.display = 'block';
-      document.getElementById('closeModule').onclick = hideModuleContent;
+<!-- AI MENTOR FLOATING BOARD -->
+<div id="ai-mentor-board" style="display:none;position:fixed;top:120px;left:120px;width:480px;height:340px;z-index:9999;background:#232946;border-radius:12px;box-shadow:0 4px 24px #0007;padding:0;overflow:hidden;resize:both;min-width:320px;min-height:180px;">
+  <div id="ai-mentor-header" style="cursor:move;background:#151b34;color:#fff;padding:10px 16px;font-weight:bold;display:flex;align-items:center;justify-content:space-between;">
+    <span><span style="font-size:1.3em;margin-right:8px;">🤖</span>AI Mentor</span>
+    <button onclick="disableAIMentor()" style="background:none;border:none;color:#fff;font-size:1.2em;cursor:pointer;">✖</button>
+  </div>
+  <div id="ai-mentor-content" style="padding:16px;max-height:320px;overflow-y:auto;">
+    <div id="ai-mentor-analytics" style="margin-bottom:10px;font-size:0.98em;"></div>
+    <div id="ai-mentor-qna">
+      <!-- Prompt removed as requested -->
+      <textarea id="ai-mentor-question" style="width:100%;height:60px;border-radius:6px;border:none;padding:8px;resize:none;"></textarea>
+      <button id="ai-mentor-ask-btn" style="margin-top:8px;background:#38bdf8;color:#232946;border:none;padding:6px 16px;border-radius:6px;cursor:pointer;float:right;">Ask</button>
+      <button id="ai-mentor-trail-btn" style="margin-top:8px;background:#a3e635;color:#232946;border:none;padding:6px 16px;border-radius:6px;cursor:pointer;float:left;" onclick="showAIMentorTrail()">Show Trail</button>
+      <div id="ai-mentor-answer" style="margin-top:10px;color:#a3e635;"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- moved main script block to end of file -->
+
+<!-- ICT PANEL -->
+<div id="ict-panel" class="module-panel" style="display:none;">
+  <button onclick="closePanel('ict')" style="position:absolute;top:8px;right:8px;background:none;border:none;color:#fff;font-size:1.2em;cursor:pointer;z-index:30;">✖</button>
+    <div class="panel-resize-handle" id="ict-panel-resize"></div>
+  <button onclick="runLiquidity()">Detect Liquidity</button>
+  <button onclick="runFVG()">Draw FVG</button>
+  <button onclick="runOB()">Show Order Block</button>
+  <hr>
+  <button onclick="runSession()">Session Shading</button>
+  <hr>
+  <button onclick="clearICT()">Clear ICT</button>
+</div>
+
+<!-- ASTRO PANEL -->
+<div id="astro-panel" class="module-panel" style="display:none;">
+  <button onclick="closePanel('astro')" style="position:absolute;top:8px;right:8px;background:none;border:none;color:#fff;font-size:1.2em;cursor:pointer;z-index:30;">✖</button>
+  <button onclick="toggleSwingPlanets()" title="Swing Planets" style="font-size:1.2em;padding:0 10px;">🪐</button>
+  <button onclick="toggleIntradayAsc()" title="Intraday Ascendant" style="font-size:1.2em;padding:0 10px;">🌅</button>
+  <button onclick="toggleKeyDegrees()" title="Key Degrees" style="font-size:1.2em;padding:0 10px;">🎯</button>
+  <button onclick="toggleRetrograde()" title="Retrograde" style="font-size:1.2em;padding:0 10px;">🔄</button>
+  <button onclick="checkDST()" title="DST Check" style="font-size:1.2em;padding:0 10px;">⏰</button>
+  <button onclick="clearAstroMarkers()" title="Clear Astro" style="font-size:1.2em;padding:0 10px;">❌</button>
+</div>
+
+<!-- GANN PANEL -->
+<div id="gann-panel" class="module-panel" style="display:none;">
+  <button onclick="closePanel('gann')" style="position:absolute;top:8px;right:8px;background:none;border:none;color:#fff;font-size:1.2em;cursor:pointer;z-index:30;">✖</button>
+  <button onclick="sendGannAlertTelegram()" title="Send Gann Alert to Telegram" style="font-size:1.3em;padding:0 10px;">📩</button>
+  <button onclick="detectGannCycle()" title="Detect Gann Cycle" style="font-size:1.3em;padding:0 10px;">🔄</button>
+</div>
+
+<!-- TIME PANEL -->
+<div id="time-panel" class="module-panel" style="display:none;">
+  <button onclick="closePanel('time')" style="position:absolute;top:8px;right:8px;background:none;border:none;color:#fff;font-size:1.2em;cursor:pointer;z-index:30;">✖</button>
+  <button onclick="drawTimeCycle(9)" title="Draw 9 Cycle" style="font-size:1.2em;padding:0 10px;">9️⃣</button>
+  <button onclick="drawTimeCycle(18)" title="Draw 18 Cycle" style="font-size:1.2em;padding:0 10px;">1️⃣8️⃣</button>
+  <button onclick="drawTimeCycle(45)" title="Draw 45 Cycle" style="font-size:1.2em;padding:0 10px;">4️⃣5️⃣</button>
+  <button onclick="drawTimeCycle(90)" title="Draw 90 Cycle" style="font-size:1.2em;padding:0 10px;">9️⃣0️⃣</button>
+  <button onclick="drawWeeklyReset()" title="Weekly Reset" style="font-size:1.2em;padding:0 10px;">📅</button>
+  <button onclick="drawMonthlyReset()" title="Monthly Reset" style="font-size:1.2em;padding:0 10px;">🗓️</button>
+  <button onclick="clearTimeLines()" title="Clear Time Lines" style="font-size:1.2em;padding:0 10px;">❌</button>
+</div>
+
+<!-- PRICE PANEL -->
+<div id="price-panel" class="module-panel" style="display:none;">
+  <button onclick="closePanel('price')" style="position:absolute;top:8px;right:8px;background:none;border:none;color:#fff;font-size:1.2em;cursor:pointer;z-index:30;">✖</button>
+  <button onclick="drawNaturalLevels()" title="Natural Levels" style="font-size:1.2em;padding:0 10px;">📏</button>
+  <button onclick="drawGannAngles()" title="Gann Angles" style="font-size:1.2em;padding:0 10px;">📐</button>
+  <button onclick="drawSquarePrice()" title="Square Price" style="font-size:1.2em;padding:0 10px;">🔲</button>
+  <button onclick="drawSymmetryZones()" title="Symmetry Zones" style="font-size:1.2em;padding:0 10px;">🟪</button>
+  <button onclick="clearPriceLevels()" title="Clear Price" style="font-size:1.2em;padding:0 10px;">❌</button>
+</div>
+
+<!-- SIGNAL PANEL -->
+<div id="signal-panel" class="module-panel" style="display:none;">
+  <button onclick="closePanel('signal')" style="position:absolute;top:8px;right:8px;background:none;border:none;color:#fff;font-size:1.2em;cursor:pointer;z-index:30;">✖</button>
+  <button onclick="setWatchMode()" title="Watch Mode" style="font-size:1.2em;padding:0 10px;">👁️</button>
+  <button onclick="setSignalOn()" title="Signal ON" style="font-size:1.2em;padding:0 10px;">🔔</button>
+  <button onclick="setSignalOff()" title="Signal OFF" style="font-size:1.2em;padding:0 10px;">🔕</button>
+  <button onclick="clearAll()" title="Clear All" style="font-size:1.2em;padding:0 10px;">🧹</button>
+</div>
+
+<style>
+.module-panel {
+  background: #151b34;
+  color: #fff;
+  padding: 16px 16px 8px 16px;
+  border-radius: 8px;
+  margin: 20px 0 0 0;
+  width: 240px;
+  min-width: 180px;
+  max-width: 420px;
+  box-shadow: 0 2px 12px #0003;
+  position: fixed;
+  left: 24px;
+  top: 60px; /* moved up for better visibility */
+  z-index: 20;
+  resize: horizontal;
+  overflow: auto;
+}
+.panel-resize-handle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 8px;
+  height: 100%;
+  cursor: ew-resize;
+  z-index: 25;
+  background: transparent;
+}
+/* TradingView-like button and select styles */
+.tv-btn {
+  background: #232946;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-right: 4px;
+}
+.tv-btn:hover {
+  background: #38bdf8;
+  color: #232946;
+}
+.tv-btn-blue {
+  background: #38bdf8;
+  color: #232946;
+}
+.tv-btn-blue:hover {
+  background: #1e90ff;
+  color: #fff;
+}
+.tv-btn-red {
+  background: #ef5350;
+  color: #fff;
+}
+.tv-btn-red:hover {
+  background: #b91c1c;
+  color: #fff;
+}
+.tv-btn-green {
+  background: #a3e635;
+  color: #232946;
+}
+.tv-btn-green:hover {
+  background: #65a30d;
+  color: #fff;
+}
+.tv-select {
+  background: #232946;
+  color: #fff;
+  border-radius: 6px;
+  padding: 4px 8px;
+  border: none;
+  font-size: 1em;
+  margin-right: 4px;
+}
+.tv-input {
+  background: #232946;
+  color: #fff;
+  border-radius: 6px;
+  padding: 4px 8px;
+  border: none;
+  font-size: 1em;
+  width: 60px;
+  margin-right: 4px;
+}
+/* Chart area shadow and border */
+#chart {
+  box-shadow: 0 4px 24px #0007;
+  border-radius: 12px;
+  border: 1px solid #232946;
+}
+
+
+
+
+<!-- CHART -->
+  <div id="chart-container" style="flex:1 1 auto; position:relative; display:flex;">
+    <div id="chart" style="position:fixed; top:96px; left:0; width:100vw; height:calc(100vh - 96px); min-width:400px; min-height:300px; box-sizing:border-box; z-index:1;"></div>
+    <div id="chart-resize-handle" style="position:absolute; right:8px; bottom:8px; width:18px; height:18px; background:#232946; border-radius:4px; border:2px solid #444; cursor:nwse-resize; z-index:1100; display:flex; align-items:center; justify-content:center;">
+      <span style="color:#888; font-size:1.2em; user-select:none;">↘</span>
+    </div>
+    <div id="chart-error" style="display:none;color:#f87171;font-weight:bold;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;background:#232946;padding:12px 24px;border-radius:8px;box-shadow:0 2px 12px #0007;">Chart error will appear here</div>
+  </div>
+</div>
+
+<script type="module">
+// ====== ASTRO PANEL BUTTONS ======
+function toggleSwingPlanets() {
+  alert('Swing Planets toggled (implement logic)');
+}
+function toggleIntradayAsc() {
+  alert('Intraday Asc toggled (implement logic)');
+}
+function toggleKeyDegrees() {
+  alert('Key Degrees toggled (implement logic)');
+}
+function toggleRetrograde() {
+  alert('Retrograde toggled (implement logic)');
+}
+function checkDST() {
+  alert('DST Check (implement logic)');
+}
+function clearAstroMarkers() {
+  alert('Astro markers cleared (implement logic)');
+}
+
+// ====== TIME PANEL BUTTONS ======
+function drawTimeCycle(cycle) {
+  alert('Draw ' + cycle + ' Cycle (implement logic)');
+}
+function drawWeeklyReset() {
+  alert('Weekly Reset (implement logic)');
+}
+function drawMonthlyReset() {
+  alert('Monthly Reset (implement logic)');
+}
+function clearTimeLines() {
+  alert('Time lines cleared (implement logic)');
+}
+
+// ====== PRICE PANEL BUTTONS ======
+function drawNaturalLevels() {
+  alert('Draw Natural Levels (implement logic)');
+}
+function drawGannAngles() {
+  alert('Draw Gann Angles (implement logic)');
+}
+function drawSquarePrice() {
+  alert('Draw Square Price (implement logic)');
+}
+function drawSymmetryZones() {
+  alert('Draw Symmetry Zones (implement logic)');
+}
+function clearPriceLevels() {
+  alert('Price levels cleared (implement logic)');
+}
+
+// ====== SIGNAL PANEL BUTTONS ======
+function setWatchMode() {
+  alert('Watch Mode enabled (implement logic)');
+}
+function setSignalOn() {
+  alert('Signal ON (implement logic)');
+}
+function setSignalOff() {
+  alert('Signal OFF (implement logic)');
+}
+function clearAll() {
+  alert('All signals and overlays cleared (implement logic)');
+}
+function closePanel(panel) {
+  document.getElementById(panel + '-panel').style.display = 'none';
+}
+// --- AI Mentor Trail Example ---
+function showAIMentorTrail() {
+  const answerDiv = document.getElementById('ai-mentor-answer');
+  if (answerDiv) {
+    answerDiv.innerHTML = `
+      <b>Signal Trail:</b><br>
+      <span style="color:#38bdf8;">[12:01]</span> Signal: Wait for 18 Cycle alignment.<br>
+      <span style="color:#a3e635;">[12:03]</span> Suggestion: Watch for Gann angle break.<br>
+      <span style="color:#f87171;">[12:05]</span> Signal: Astro window active.<br>
+      <span style="color:#fff;">[12:07]</span> Suggestion: No trade, market in transition.<br>
+    `;
+  }
+}
+// --- AI Mentor Drag Anywhere ---
+const aiMentorBoard = document.getElementById('ai-mentor-board');
+const aiMentorHeader = document.getElementById('ai-mentor-header');
+let dragging = false, dragOffsetX = 0, dragOffsetY = 0;
+aiMentorHeader.addEventListener('mousedown', function(e) {
+  dragging = true;
+  dragOffsetX = e.clientX - aiMentorBoard.offsetLeft;
+  dragOffsetY = e.clientY - aiMentorBoard.offsetTop;
+  document.body.style.cursor = 'move';
+});
+window.addEventListener('mousemove', function(e) {
+  if (!dragging) return;
+  let x = e.clientX - dragOffsetX;
+  let y = e.clientY - dragOffsetY;
+  // Keep within viewport
+  x = Math.max(0, Math.min(window.innerWidth - aiMentorBoard.offsetWidth, x));
+  y = Math.max(0, Math.min(window.innerHeight - aiMentorBoard.offsetHeight, y));
+  aiMentorBoard.style.left = x + 'px';
+  aiMentorBoard.style.top = y + 'px';
+});
+window.addEventListener('mouseup', function() {
+  if (dragging) {
+    dragging = false;
+    document.body.style.cursor = '';
+  }
+});
+function toggleAIMentor() {
+  var board = document.getElementById('ai-mentor-board');
+  if (board) {
+    board.style.display = (board.style.display === 'none' || board.style.display === '') ? 'block' : 'none';
+  }
+}
+
+function disableAIMentor() {
+  var board = document.getElementById('ai-mentor-board');
+  if (board) {
+    board.style.display = 'none';
+  }
+}
+// --- ICT Panel Horizontal Resize ---
+const ictPanel = document.getElementById('ict-panel');
+const ictPanelResize = document.getElementById('ict-panel-resize');
+let panelResizing = false, panelStartX = 0, panelStartW = 0;
+ictPanelResize.addEventListener('mousedown', function(e) {
+  e.preventDefault();
+  panelResizing = true;
+  panelStartX = e.clientX;
+  panelStartW = ictPanel.offsetWidth;
+  document.body.style.cursor = 'ew-resize';
+});
+window.addEventListener('mousemove', function(e) {
+  if (!panelResizing) return;
+  const dx = e.clientX - panelStartX;
+  let newW = Math.max(180, Math.min(420, panelStartW + dx));
+  ictPanel.style.width = newW + 'px';
+});
+window.addEventListener('mouseup', function() {
+  if (panelResizing) {
+    panelResizing = false;
+    document.body.style.cursor = '';
+  }
+});
+// --- Chart Drag Resize Logic ---
+const chartDiv = document.getElementById('chart');
+const resizeHandle = document.getElementById('chart-resize-handle');
+let resizing = false, startX = 0, startY = 0, startW = 0, startH = 0;
+resizeHandle.addEventListener('mousedown', function(e) {
+  e.preventDefault();
+  resizing = true;
+  startX = e.clientX;
+  startY = e.clientY;
+  startW = chartDiv.offsetWidth;
+  startH = chartDiv.offsetHeight;
+  document.body.style.cursor = 'nwse-resize';
+});
+window.addEventListener('mousemove', function(e) {
+  if (!resizing) return;
+  const dx = e.clientX - startX;
+  const dy = e.clientY - startY;
+  let newW = Math.max(320, startW + dx);
+  let newH = Math.max(200, startH + dy);
+  chartDiv.style.width = newW + 'px';
+  chartDiv.style.height = newH + 'px';
+  if (window.chart) chart.resize(newW, newH);
+});
+window.addEventListener('mouseup', function() {
+  if (resizing) {
+    resizing = false;
+    document.body.style.cursor = '';
+  }
+});
+// Position the handle in the bottom-right of the chart
+function positionResizeHandle() {
+  const rect = chartDiv.getBoundingClientRect();
+  resizeHandle.style.left = (rect.width - 26) + 'px';
+  resizeHandle.style.top = (rect.height - 26) + 'px';
+}
+window.addEventListener('resize', positionResizeHandle);
+setTimeout(positionResizeHandle, 200);
+chartDiv.addEventListener('resize', positionResizeHandle);
+function showPanel(panel) {
+  document.getElementById('ict-panel').style.display = (panel === 'ict') ? 'block' : 'none';
+  document.getElementById('astro-panel').style.display = (panel === 'astro') ? 'block' : 'none';
+  document.getElementById('gann-panel').style.display = (panel === 'gann') ? 'block' : 'none';
+  document.getElementById('signal-panel').style.display = (panel === 'signal') ? 'block' : 'none';
+  document.getElementById('time-panel').style.display = (panel === 'time') ? 'block' : 'none';
+  document.getElementById('price-panel').style.display = (panel === 'price') ? 'block' : 'none';
+  setTimeout(resizeChart, 100); // Ensure chart resizes after panel toggle
+}
+// Panel markup removed from script block. Only JS code remains below.
+
+// --- ASTRO PANEL CHART ACTIONS ---
+let astroOverlays = [];
+function addAstroOverlay(series) {
+  astroOverlays.push(series);
+}
+function clearAstro() {
+  astroOverlays.forEach(s => chart.removeSeries(s));
+  astroOverlays = [];
+  if (typeof setStatusBox === 'function') setStatusBox({ planet: '—', action: 'Clear Astro' });
+}
+function drawAstroEvents() {
+  // Stub: Draw Astro Events overlay
+  const s = chart.addLineSeries({ color: "#ff69b4", lineWidth: 2 });
+  const astroData = sanitizeOverlayData([
+    { time: "2026-01-02", value: 4180 },
+    { time: "2026-01-03", value: 4160 }
+  ]);
+  console.log('AstroEvents setData:', astroData);
+  if (astroData.length > 0) s.setData(astroData);
+  addAstroOverlay(s);
+  if (typeof setStatusBox === 'function') setStatusBox({ planet: 'Astro Events', action: 'Draw Astro Events' });
+}
+function drawNakshatra() {
+  // Stub: Draw Nakshatra Timings
+  const s = chart.addLineSeries({ color: "#00fa9a", lineWidth: 2 });
+  const nakshatraData = sanitizeOverlayData([
+    { time: "2026-01-01", value: 4170 },
+    { time: "2026-01-02", value: 4180 }
+  ]);
+  console.log('Nakshatra setData:', nakshatraData);
+  if (nakshatraData.length > 0) s.setData(nakshatraData);
+  addAstroOverlay(s);
+  if (typeof setStatusBox === 'function') setStatusBox({ planet: 'Nakshatra', action: 'Draw Nakshatra' });
+}
+function drawTithi() {
+  // Stub: Draw Tithi Calendar
+  const s = chart.addLineSeries({ color: "#ffd700", lineWidth: 2 });
+  const tithiData = sanitizeOverlayData([
+    { time: "2026-01-03", value: 4160 },
+    { time: "2026-01-04", value: 4130 }
+  ]);
+  console.log('Tithi setData:', tithiData);
+  if (tithiData.length > 0) s.setData(tithiData);
+  addAstroOverlay(s);
+  if (typeof setStatusBox === 'function') setStatusBox({ planet: 'Tithi', action: 'Draw Tithi' });
+}
+function drawPlanetary() {
+  // Stub: Draw Planetary Positions
+  const s = chart.addLineSeries({ color: "#1e90ff", lineWidth: 2 });
+  const planetaryData = sanitizeOverlayData([
+    { time: "2026-01-01", value: 4150 },
+    { time: "2026-01-04", value: 4180 }
+  ]);
+  console.log('Planetary setData:', planetaryData);
+  if (planetaryData.length > 0) s.setData(planetaryData);
+  addAstroOverlay(s);
+  if (typeof setStatusBox === 'function') setStatusBox({ planet: 'Planetary', action: 'Draw Planetary' });
+}
+
+// --- SIGNAL PANEL CHART ACTIONS ---
+let signalOverlays = [];
+
+function resizeChart() {
+  if (window.chart && chartDiv) {
+    chart.resize(chartDiv.offsetWidth, chartDiv.offsetHeight);
+    positionResizeHandle();
+  }
+}
+window.addEventListener('resize', resizeChart);
+setTimeout(resizeChart, 100); // Initial resize after render
+
+/* =====================================================
+   CHART SETUP
+===================================================== */
+
+let chart = null, candles = null;
+// window.chart will be set after chart is created
+
+
+
+function showChartError(msg) {
+  const el = document.getElementById('chart-error');
+  if (el) {
+    el.textContent = '⚠️ ' + msg;
+    el.style.display = 'block';
+    el.style.fontSize = '1.3em';
+    el.style.border = '2px solid #f87171';
+    el.style.background = '#2d1a1a';
+    el.style.color = '#fff';
+    el.style.textAlign = 'center';
+    // Also visually highlight the chart area
+    const chartDiv = document.getElementById('chart');
+    if (chartDiv) {
+      chartDiv.style.boxShadow = '0 0 0 6px #f87171';
+      chartDiv.style.background = '#2d1a1a';
     }
-    function hideModuleContent() {
-      // Show all tiles except module-content
-      Array.from(dashboard.children).forEach(child => {
-        if (child !== moduleContent) child.style.display = '';
-      });
-      moduleContent.style.display = 'none';
-      moduleContent.innerHTML = '';
+  }
+  console.error('Chart error:', msg);
+}
+
+async function initChart() {
+  const chartDiv = document.getElementById("chart");
+  if (!chartDiv) {
+    showChartError('Chart container not found in DOM.');
+    console.error('Chart container not found in DOM.');
+    return;
+  }
+  chartDiv.style.width = '100vw';
+  chartDiv.style.height = 'calc(100vh - 96px)';
+  showChartError('Loading chart data...');
+  try {
+    if (typeof LightweightCharts === 'undefined' || !LightweightCharts.createChart) {
+      showChartError('Chart library not loaded. Check your internet connection or CDN.');
+      console.error('Chart library not loaded. Check your internet connection or CDN.');
+      return;
     }
-    // Example content for each module (replace with real content or AJAX as needed)
-    const moduleHTML = {
-      livechart: `
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:18px;flex-wrap:wrap;">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <i class='fa-solid fa-chart-line' style='font-size:2em;color:#ffd700;'></i>
-            <h2 style='margin:0;font-size:1.5em;font-weight:800;color:#ffd700;'>Live Chart</h2>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <button title='Timeframes' style='background:none;border:none;color:#ffd700;font-size:1.2em;cursor:pointer;'><i class='fa-solid fa-clock'></i></button>
-            <button title='Overlays' style='background:none;border:none;color:#ffd700;font-size:1.2em;cursor:pointer;'><i class='fa-solid fa-layer-group'></i></button>
-            <button title='Settings' style='background:none;border:none;color:#ffd700;font-size:1.2em;cursor:pointer;'><i class='fa-solid fa-cog'></i></button>
-            <button title='Expand' style='background:none;border:none;color:#ffd700;font-size:1.2em;cursor:pointer;'><i class='fa-solid fa-expand'></i></button>
-          </div>
-        </div>
-        <div id='chart-block' style='width:100%;min-height:400px;height:48vh;max-height:600px;background:#181c24;border-radius:16px;box-shadow:0 4px 24px #0003;margin-bottom:18px;display:flex;align-items:center;justify-content:center;position:relative;'>
-          <span style='color:#ffd700;font-size:1.2em;opacity:0.7;'>TradingView/Lightweight chart integration coming soon.</span>
-        </div>
-        <div style='display:flex;justify-content:flex-end;gap:16px;'>
-          <span style='color:#ffd700;font-size:1em;'><i class='fa-solid fa-coins'></i> XAUUSD: <span id='xauusdPriceModule'>--</span></span>
-        </div>
-      `,
-      ml: `<h2>AI/ML Analytics</h2><p>Machine learning insights, feature importance, and predictive analytics for XAUUSD will be shown here.</p>`,
-      astro: `<h2>Astro Events</h2><p>Detailed nakshatra, tithi, and planetary event timings with visualizations will be shown here.</p>`,
-      gann: `<h2>Gann Analytics</h2><p>Gann cycles, Square of Nine, and harmonic overlays for advanced market timing will be shown here.</p>`,
-      signals: `<h2>Signals Feed</h2><p>Unified, real-time feed of all trading signals with instant alerts and filtering will be shown here.</p>`,
-      ict: `<h2>ICT Mentor</h2><p>Inner Circle Trader logic, bias, and trade signals — automated and explainable — will be shown here.</p>`
-    };
-    document.getElementById('tile-livechart').onclick = () => showModuleContent(moduleHTML.livechart);
-    document.getElementById('tile-ml').onclick = () => showModuleContent(moduleHTML.ml);
-    document.getElementById('tile-astro').onclick = () => showModuleContent(moduleHTML.astro);
-    document.getElementById('tile-gann').onclick = () => showModuleContent(moduleHTML.gann);
-    document.getElementById('tile-signals').onclick = () => showModuleContent(moduleHTML.signals);
-    document.getElementById('tile-ict').onclick = () => showModuleContent(moduleHTML.ict);
-  </script>
+    chart = LightweightCharts.createChart(chartDiv, {
+      layout: {
+        background: { color: '#181B2A' },
+        textColor: '#D1D4DC',
+        fontFamily: 'Trebuchet MS, Arial, sans-serif',
+      },
+      grid: {
+        vertLines: { color: '#23273B', style: 0, visible: true },
+        horzLines: { color: '#23273B', style: 0, visible: true },
+      },
+      crosshair: {
+        mode: LightweightCharts.CrosshairMode.Normal,
+        vertLine: { color: '#758696', width: 1, style: 2, visible: true, labelVisible: true },
+        horzLine: { color: '#758696', width: 1, style: 2, visible: true, labelVisible: true },
+      },
+      rightPriceScale: {
+        borderColor: '#485158',
+        scaleMargins: { top: 0.15, bottom: 0.15 },
+        entireTextOnly: true,
+        visible: true,
+      },
+      timeScale: {
+        borderColor: '#485158',
+        timeVisible: true,
+        secondsVisible: false,
+      },
+      width: chartDiv.clientWidth,
+      height: chartDiv.clientHeight,
+      handleScroll: true,
+      handleScale: true,
+      localization: { priceFormatter: price => price.toFixed(2) },
+    });
+    window.chart = chart;
+    console.log('Chart successfully created and attached to #chart');
+  } catch (e) {
+    showChartError('Chart creation failed: ' + e);
+    console.error('Chart creation failed:', e);
+    return;
+  }
+  try {
+    candles = chart.addCandlestickSeries({
+      upColor: '#26a69a',
+      downColor: '#ef5350',
+      borderUpColor: '#26a69a',
+      borderDownColor: '#ef5350',
+      wickUpColor: '#26a69a',
+      wickDownColor: '#ef5350',
+      priceLineVisible: false,
+      lastValueVisible: true,
+    });
+  } catch (e) {
+    showChartError('Failed to add candlestick series: ' + e);
+    return;
+  }
+  // Load chart data for selected symbol and time frame
+  let lastPriceLine = null;
+  async function updateChart() {
+    const symbol = getSelectedSymbol();
+    const interval = getSelectedInterval();
+    let ohlc = [];
+    try {
+      const url = `/api/twelvedata?type=ohlc&symbol=${symbol}&interval=${interval}&outputsize=100`;
+      const resp = await fetch(url);
+      ohlc = await resp.json();
+      console.log('Chart update:', { symbol, interval, url, ohlc });
+    } catch (e) {
+      showChartError('Error fetching chart data: ' + e);
+      return;
+    }
+    if (!Array.isArray(ohlc) || ohlc.length === 0) {
+      showChartError('Backend returned empty or invalid OHLC data.');
+      return;
+    }
+    const sanitized = ohlc
+      .filter(bar => bar && bar.time && bar.open != null && bar.high != null && bar.low != null && bar.close != null)
+      .map(bar => {
+        let timeObj = bar.time;
+        if (typeof bar.time === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(bar.time)) {
+          const [year, month, day] = bar.time.split('-').map(Number);
+          timeObj = { year, month, day };
+        }
+        return {
+          time: timeObj,
+          open: Number(bar.open),
+          high: Number(bar.high),
+          low: Number(bar.low),
+          close: Number(bar.close)
+        };
+      });
+    const finalCandles = sanitized.filter(c => c.time && typeof c.time === 'object' && c.time.year && c.time.month && c.time.day);
+    if (finalCandles.length > 0 && candles && typeof candles.setData === 'function') {
+      candles.setData(finalCandles);
+      if (window.lineSeries) window.lineSeries.setData(finalCandles.map(bar => ({ time: bar.time, value: bar.close })));
+      if (areaSeries) areaSeries.setData(finalCandles.map(bar => ({ time: bar.time, value: bar.close })));
+      if (barSeries) barSeries.setData(finalCandles);
+      if (heikinSeries) {
+        let haData = finalCandles.map((bar, i, arr) => {
+          let prev = arr[i - 1] || bar;
+          let haClose = (bar.open + bar.high + bar.low + bar.close) / 4;
+          let haOpen = (prev.open + prev.close) / 2;
+          let haHigh = Math.max(bar.high, haOpen, haClose);
+          let haLow = Math.min(bar.low, haOpen, haClose);
+          return { time: bar.time, open: haOpen, high: haHigh, low: haLow, close: haClose };
+        });
+        heikinSeries.setData(haData);
+      }
+      if (volumeSeries) volumeSeries.setData(ohlc.map(bar => ({ time: bar.time, value: bar.volume ? Number(bar.volume) : 0 })));
+      if (compareSeries) compareSeries.setData([]); // Clear compare on reload
+      if (lastPriceLine && typeof lastPriceLine.remove === 'function') {
+        lastPriceLine.remove();
+      }
+      const last = finalCandles[finalCandles.length - 1];
+      if (last && last.close != null && last.open != null) {
+        // Live price line (TradingView style)
+        lastPriceLine = candles.createPriceLine({
+          price: last.close,
+          color: last.close >= last.open ? '#38bdf8' : '#ef5350',
+          lineWidth: 3,
+          lineStyle: LightweightCharts.LineStyle.Solid,
+          axisLabelVisible: true,
+          title: 'Live',
+        });
+        // Optionally, add a marker for the last price
+        if (window.chart && typeof window.chart.setMarkers === 'function') {
+          window.chart.setMarkers([
+            {
+              time: last.time,
+              position: 'aboveBar',
+              color: last.close >= last.open ? '#38bdf8' : '#ef5350',
+              shape: 'arrowUp',
+              text: 'Live',
+            }
+          ]);
+        }
+      }
+      document.getElementById('chart-error').style.display = 'none';
+      chartDiv.style.boxShadow = '';
+      chartDiv.style.background = '';
+    } else {
+      showChartError('No valid chart data available. Check backend response.');
+    }
+    setTimeout(resizeChart, 100);
+  }
+  await updateChart();
+  // Remove auto-refresh. Add manual refresh button below.
+  // Update chart when time frame or symbol changes
+  document.getElementById('timeframe-select').onchange = updateChart;
+  document.getElementById('symbol-select').onchange = updateChart;
+
+  // Add manual refresh button if not present
+  if (!document.getElementById('refresh-chart')) {
+    const btn = document.createElement('button');
+    btn.id = 'refresh-chart';
+    btn.textContent = 'Refresh';
+    btn.style.background = '#38bdf8';
+    btn.style.color = 'white';
+    btn.style.borderRadius = '6px';
+    btn.style.marginLeft = '8px';
+    btn.style.padding = '4px 12px';
+    btn.onclick = updateChart;
+    const iconBar = document.getElementById('icon-bar');
+    if (iconBar) iconBar.appendChild(btn);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initChart);
+
+/* =====================================================
+   ICT OVERLAY MANAGEMENT
+===================================================== */
+let ictOverlays = [];
+function addOverlay(series) {
+  ictOverlays.push(series);
+}
+function clearICT() {
+  ictOverlays.forEach(s => chart.removeSeries(s));
+  ictOverlays = [];
+}
+
+/* =====================================================
+   MOCK API (REPLACE WITH REAL BACKEND LATER)
+===================================================== */
+async function callICTApi(endpoint) {
+  // Fetch overlay/signal data from backend endpoints
+  try {
+    let url = '';
+    if (endpoint === "liquidity") url = '/api/ict/liquidity';
+    else if (endpoint === "fvg") url = '/api/ict/fvg';
+    else if (endpoint === "ob") url = '/api/ict/ob';
+    else if (endpoint === "session") url = '/api/ict/session';
+    else url = `/api/ict/${endpoint}`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('Backend error: ' + resp.status);
+    const data = await resp.json();
+    return data;
+  } catch (err) {
+    showChartError('Failed to load ICT overlay/signal: ' + endpoint);
+    console.error('ICT overlay/signal fetch error:', endpoint, err);
+    // Fallback to empty or demo overlay
+    if (endpoint === "liquidity") return { type: "BUY_SIDE", price: 4200, time: "2026-01-03" };
+    if (endpoint === "fvg") return { top: 4178, bottom: 4168, start: "2026-01-02", end: "2026-01-04" };
+    if (endpoint === "ob") return { price: 4160, start: "2026-01-01", end: "2026-01-02" };
+    if (endpoint === "session") return { time: "2026-01-02", active: true };
+    return {};
+  }
+}
+
+/* =====================================================
+   ICT BUTTON ACTIONS (API → CHART)
+===================================================== */
+
+/* Liquidity Sweep */
+async function runLiquidity() {
+  const data = await callICTApi("liquidity");
+  const s = chart.addLineSeries({ color: "red", lineWidth: 2 });
+  const signalData = sanitizeOverlayData([
+    { time: data.time, value: data.price },
+    { time: data.time, value: data.price + 10 }
+  ]);
+  console.log('Signal setData:', signalData);
+  if (signalData.length > 0) s.setData(signalData);
+  addOverlay(s);
+}
+
+/* Fair Value Gap */
+async function runFVG() {
+  const data = await callICTApi("fvg");
+  const s = chart.addLineSeries({
+    color: "rgba(231,76,60,0.5)",
+    lineWidth: 8
+  });
+  const fvgData = sanitizeOverlayData([
+    { time: data.start, value: data.top },
+    { time: data.end, value: data.top }
+  ]);
+  console.log('FVG setData:', fvgData);
+  if (fvgData.length > 0) s.setData(fvgData);
+  addOverlay(s);
+}
+
+/* Order Block */
+async function runOB() {
+  const data = await callICTApi("ob");
+  const s = chart.addLineSeries({
+    color: "rgba(241,196,15,0.5)",
+    lineWidth: 6
+  });
+  const obData = sanitizeOverlayData([
+    { time: data.start, value: data.price },
+    { time: data.end, value: data.price }
+  ]);
+  console.log('OB setData:', obData);
+  if (obData.length > 0) s.setData(obData);
+  addOverlay(s);
+}
+
+/* Session Shading */
+async function runSession() {
+  const data = await callICTApi("session");
+  if (!data.active) return;
+
+  const s = chart.addLineSeries({
+    color: "rgba(155,89,182,0.25)",
+    lineWidth: 120
+  });
+  const sessionData = sanitizeOverlayData([
+    { time: data.time, value: 4180 },
+    { time: data.time, value: 4180 }
+  ]);
+  console.log('Session setData:', sessionData);
+  if (sessionData.length > 0) s.setData(sessionData);
+  addOverlay(s);
+}
+
+
+// Gann module bar resize logic
+const gannPanel = document.getElementById('gann-inline-panel');
+let isResizing = false;
+let lastX = 0;
+document.addEventListener('mousedown', function(e) {
+  if (e.target && e.target.id === 'gann-resize-handle') {
+    isResizing = true;
+    lastX = e.clientX;
+    document.body.style.cursor = 'ew-resize';
+  }
+});
+document.addEventListener('mousemove', function(e) {
+  if (isResizing && gannPanel) {
+    const dx = e.clientX - lastX;
+    lastX = e.clientX;
+    const style = window.getComputedStyle(gannPanel);
+    let width = parseInt(style.width, 10) + dx;
+    width = Math.max(320, Math.min(width, window.innerWidth - 40));
+    gannPanel.style.width = width + 'px';
+  }
+});
+document.addEventListener('mouseup', function() {
+  if (isResizing) {
+    isResizing = false;
+    document.body.style.cursor = '';
+  }
+});
+</script>
+<script>
+function sendGannAlertTelegram() {
+  // Example: call your backend API to send a Telegram message
+  fetch('/api/send_gann_alert', { method: 'POST' })
+    .then(res => res.json())
+    .then(data => alert('Telegram alert sent!'))
+    .catch(err => alert('Failed to send alert'));
+}
+
+function detectGannCycle() {
+  // Example: analyze chart data and draw a cycle overlay
+  // (You must implement your own Gann cycle detection logic)
+  if (window.chart) {
+    // Example: draw a vertical line or shape for the detected cycle
+    // Replace with your actual cycle detection and drawing logic
+    alert('Cycle detected and displayed on chart!');
+    // You can use chart.addLineSeries(), chart.addShape(), etc.
+  }
+}
+</script>
+<script>
+// --- ICON BAR CHART FEATURE LOGIC ---
+let currentSeriesType = 'candlestick';
+let indicatorSeries = [];
+let volumeSeries = null;
+let areaSeries = null;
+let barSeries = null;
+let heikinSeries = null;
+let compareSeries = null;
+let theme = 'dark';
+let indicatorOn = true;
+
+// --- Show all chart styles at once ---
+function showAllChartStyles(candleData) {
+  // Candlestick
+  if (candles) {
+    candles.setData(candleData);
+    candles.applyOptions({ visible: true });
+  }
+  // Line
+  if (!window.lineSeries) {
+    window.lineSeries = chart.addLineSeries({ color: '#1e90ff', lineWidth: 2 });
+  }
+  window.lineSeries.setData(candleData.map(bar => ({ time: bar.time, value: bar.close })));
+  window.lineSeries.applyOptions({ visible: true });
+  // Area
+  if (!areaSeries) {
+    areaSeries = chart.addAreaSeries({ color: '#38bdf8', lineWidth: 2 });
+  }
+  areaSeries.setData(candleData.map(bar => ({ time: bar.time, value: bar.close })));
+  areaSeries.applyOptions({ visible: true });
+  // Bar
+  if (!barSeries) {
+    barSeries = chart.addBarSeries({ upColor: '#26a69a', downColor: '#ef5350', borderUpColor: '#26a69a', borderDownColor: '#ef5350', wickUpColor: '#26a69a', wickDownColor: '#ef5350' });
+  }
+  barSeries.setData(candleData);
+  barSeries.applyOptions({ visible: true });
+  // Heikin-Ashi
+  if (!heikinSeries) {
+    heikinSeries = chart.addCandlestickSeries({ upColor: '#a3e635', downColor: '#ef5350', borderUpColor: '#a3e635', borderDownColor: '#ef5350', wickUpColor: '#a3e635', wickDownColor: '#ef5350' });
+  }
+  let haData = candleData.map((bar, i, arr) => {
+    let prev = arr[i - 1] || bar;
+    let haClose = (bar.open + bar.high + bar.low + bar.close) / 4;
+    let haOpen = (prev.open + prev.close) / 2;
+    let haHigh = Math.max(bar.high, haOpen, haClose);
+    let haLow = Math.min(bar.low, haOpen, haClose);
+    return { time: bar.time, open: haOpen, high: haHigh, low: haLow, close: haClose };
+  });
+  heikinSeries.setData(haData);
+  heikinSeries.applyOptions({ visible: true });
+}
+
+
+function getIndicatorParam() {
+  return document.getElementById('indicator-param').value || 14;
+}
+
+document.getElementById('icon-candle').onclick = function() {
+  if (window.chart && candles) {
+    candles.applyOptions({ visible: true });
+    if (areaSeries) areaSeries.applyOptions({ visible: false });
+    if (barSeries) barSeries.applyOptions({ visible: false });
+    if (heikinSeries) heikinSeries.applyOptions({ visible: false });
+    currentSeriesType = 'candlestick';
+  }
+};
+document.getElementById('icon-line').onclick = function() {
+  if (typeof updateChart === 'function') {
+    updateChart();
+  }
+};
+document.getElementById('icon-export').onclick = function() {
+  if (window.chart) {
+    chart.takeScreenshot().then(img => {
+      const a = document.createElement('a');
+      a.href = img;
+      a.download = 'chart.png';
+      a.click();
+    });
+  }
+};
+document.getElementById('icon-theme').onclick = function() {
+  theme = theme === 'dark' ? 'light' : 'dark';
+  chart.applyOptions({ layout: { background: { color: theme === 'dark' ? '#181B2A' : '#fff' }, textColor: theme === 'dark' ? '#D1D4DC' : '#232946' } });
+};
+document.getElementById('symbol-select').onchange = async function() {
+  // Use updateChart for consistent chart and overlay updates
+  if (typeof updateChart === 'function') {
+    updateChart();
+  }
+};
+document.getElementById('compare-symbol').onclick = async function() {
+  const symbol = prompt('Enter symbol to compare (e.g. MSFT):');
+  const interval = getSelectedInterval();
+  if (symbol) {
+    const resp = await fetch(`/api/twelvedata?type=ohlc&symbol=${symbol}&interval=${interval}&outputsize=100`);
+    const data = await resp.json();
+    if (Array.isArray(data)) {
+      if (compareSeries) chart.removeSeries(compareSeries);
+      compareSeries = chart.addLineSeries({ color: '#a3e635', lineWidth: 2 });
+      compareSeries.setData(data.map(bar => ({ time: bar.time, value: Number(bar.close) })));
+    }
+  }
+};
+document.getElementById('add-indicator').onclick = async function() {
+  const indicator = document.getElementById('indicator-select').value;
+  const symbol = getSelectedSymbol();
+  const interval = getSelectedInterval();
+  const param = getIndicatorParam();
+  const outputsize = 100;
+  let url = `/api/twelvedata?type=indicator&symbol=${symbol}&interval=${interval}&outputsize=${outputsize}&indicator=${indicator}&param=${param}`;
+  try {
+    const resp = await fetch(url);
+    const data = await resp.json();
+    if (data && Array.isArray(data.values)) {
+      let series;
+      if (indicator === 'sma' || indicator === 'ema') {
+        series = chart.addLineSeries({ color: '#ffd700', lineWidth: 2 });
+        series.setData(data.values.map(bar => ({ time: bar.datetime, value: parseFloat(bar[indicator]) })));
+      } else if (indicator === 'rsi') {
+        series = chart.addLineSeries({ color: '#00bfff', lineWidth: 2 });
+        series.setData(data.values.map(bar => ({ time: bar.datetime, value: parseFloat(bar.rsi) })));
+      } else if (indicator === 'macd') {
+        series = chart.addLineSeries({ color: '#ff69b4', lineWidth: 2 });
+        series.setData(data.values.map(bar => ({ time: bar.datetime, value: parseFloat(bar.macd) })));
+      } else if (indicator === 'bollinger') {
+        let upper = chart.addLineSeries({ color: '#a3e635', lineWidth: 1 });
+        let middle = chart.addLineSeries({ color: '#fff', lineWidth: 1 });
+        let lower = chart.addLineSeries({ color: '#ef5350', lineWidth: 1 });
+        upper.setData(data.values.map(bar => ({ time: bar.datetime, value: parseFloat(bar.upper) })));
+        middle.setData(data.values.map(bar => ({ time: bar.datetime, value: parseFloat(bar.middle) })));
+        lower.setData(data.values.map(bar => ({ time: bar.datetime, value: parseFloat(bar.lower) })));
+        indicatorSeries.push(upper, middle, lower);
+        return;
+      }
+      indicatorSeries.push(series);
+        indicatorOn = true;
+        document.getElementById('toggle-indicator').textContent = 'Off';
+    } else {
+      alert('Indicator data not available or invalid format.');
+    }
+  } catch (err) {
+    alert('Error fetching indicator data: ' + err);
+  }
+};
+
+  document.getElementById('toggle-indicator').onclick = function() {
+    if (indicatorOn) {
+      // Remove indicator series from chart
+      if (indicatorSeries && indicatorSeries.length) {
+        indicatorSeries.forEach(s => chart.removeSeries(s));
+        indicatorSeries = [];
+      }
+      indicatorOn = false;
+      document.getElementById('toggle-indicator').textContent = 'On';
+    } else {
+      // Re-add indicator (simulate click on Add)
+      document.getElementById('add-indicator').click();
+      indicatorOn = true;
+      document.getElementById('toggle-indicator').textContent = 'Off';
+    }
+  };
+document.getElementById('apply-timeframe').onclick = async function() {
+  const interval = getSelectedInterval();
+  const symbol = getSelectedSymbol();
+  const resp = await fetch(`/api/twelvedata?type=ohlc&symbol=${symbol}&interval=${interval}&outputsize=100`);
+  const data = await resp.json();
+  if (Array.isArray(data) && candles) {
+    candles.setData(data.map(bar => ({
+      time: bar.time,
+      open: Number(bar.open),
+      high: Number(bar.high),
+      low: Number(bar.low),
+      close: Number(bar.close)
+    })));
+  }
+};
+document.getElementById('draw-trendline').onclick = function() {
+  alert('Trendline drawing tool activated! (Implement logic)');
+};
+document.getElementById('draw-fib').onclick = function() {
+  alert('Fibonacci drawing tool activated! (Implement logic)');
+};
+document.getElementById('annotate-chart').onclick = function() {
+  alert('Annotation tool activated! (Implement logic)');
+};
+</script>
 </body>
 </html>

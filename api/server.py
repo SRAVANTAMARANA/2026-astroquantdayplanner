@@ -1,3 +1,38 @@
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import json
+import os
+
+import pandas as pd
+
+app = FastAPI()
+
+# Absolute path to the frontend directory
+frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend'))
+app.mount("/frontend", StaticFiles(directory=frontend_path), name="frontend")
+
+
+# Serve index.html at the root
+@app.get("/")
+def read_index():
+    index_path = os.path.join(frontend_path, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return {"detail": "index.html not found"}
+
+# Catch-all route for SPA (serves index.html for any unmatched path)
+from fastapi import Request
+@app.get("/{full_path:path}")
+async def catch_all(full_path: str, request: Request):
+    # Only serve index.html for GET requests that are not API/static
+    if request.method == "GET" and not full_path.startswith("api") and not full_path.startswith("frontend"):
+        index_path = os.path.join(frontend_path, "index.html")
+        if os.path.exists(index_path):
+            return FileResponse(index_path)
+    return {"detail": "Not Found"}
+
+
 # --- New: ICT Concepts endpoint for chart overlays ---
 @app.get("/concepts")
 def get_concepts():
@@ -11,12 +46,6 @@ def get_concepts():
         {"type": "KILLZONE", "from": "2025-01-02T18:30", "to": "2025-01-02T21:30", "label": "New York"},
     ]
 
-from fastapi import FastAPI
-import json
-import os
-import pandas as pd
-
-app = FastAPI()
 
 @app.get("/signals")
 def get_signals():
@@ -25,6 +54,7 @@ def get_signals():
         return json.load(f)
 
 # --- New: Price data endpoint for chart ---
+
 @app.get("/price")
 def get_price():
     # Example: load from CSV or database in production
